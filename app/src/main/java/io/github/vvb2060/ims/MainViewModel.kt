@@ -2,7 +2,6 @@ package io.github.vvb2060.ims
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
@@ -21,7 +20,7 @@ data class MainUiState(
     val shizukuStatus: ShizukuStatus = ShizukuStatus.CHECKING,
     val isQpr2Beta3OrHigher: Boolean = false,
     val selectedSim: SimSelection = SimSelection.SIM1,
-    val featureSwitches: Map<Feature, Boolean> = Feature.values().associateWith { true },
+    val featureSwitches: Map<Feature, Boolean> = Feature.entries.associateWith { true },
     val isApplyButtonEnabled: Boolean = false,
     val showSimSelectionDialog: Boolean = false,
     val showConfigAppliedDialog: Boolean = false,
