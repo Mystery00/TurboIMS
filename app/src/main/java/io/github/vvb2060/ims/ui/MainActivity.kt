@@ -360,13 +360,13 @@ fun ApplyButton(
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(56.dp),
         enabled = isApplyButtonEnabled,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
     ) {
         Text(
             stringResource(R.string.apply_config),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }

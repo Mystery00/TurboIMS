@@ -7,9 +7,9 @@
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
-        <item name="windowSplashScreenBackground">#2196F3</item>
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
 
         <!-- 需要配置postSplashScreenTheme属性，主题需要是AppCompat -->
         <!-- 否则会报异常：You need to use a Theme.AppCompat theme (or descendant) with this activity -->
