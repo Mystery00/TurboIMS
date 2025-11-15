@@ -4,16 +4,19 @@
     <string name="for_pixel">forked by Mystery0</string>
 
     <!-- Main Screen -->
-    <string name="title">Turbo IMS 配置</string>
     <string name="system_info">系统信息</string>
     <string name="android_version">Android 版本：%s</string>
     <string name="shizuku_status">Shizuku 状态：%s</string>
     <string name="shizuku_ready">✅ 已就绪</string>
     <string name="shizuku_not_running">❌ 未运行</string>
     <string name="shizuku_no_permission">⚠️ 未授权</string>
-    <string name="shizuku_checking">Checking…</string>
+    <string name="shizuku_checking">检查中…</string>
     <string name="refresh_permission">刷新</string>
     <string name="request_permission">请求</string>
+
+    <!-- SIM Card -->
+    <string name="sim_card">本次应用的 SIM 卡</string>
+    <string name="select_sim">选择 SIM 卡</string>
 
     <!-- Features -->
     <string name="features_config">本次应用功能列表</string>
@@ -41,20 +44,7 @@
     <!-- Messages -->
     <string name="shizuku_not_running_msg">Shizuku 未运行，请先启动 Shizuku</string>
     <string name="shizuku_no_permission_msg">请授予 Shizuku 权限</string>
-    <string name="config_applied">配置已应用！</string>
+    <string name="config_success_message">配置已应用！</string>
     <string name="config_failed">配置失败：%s</string>
     <string name="update_shizuku">请更新 Shizuku 到最新版本</string>
-
-    <!-- Language -->
-    <string name="language">语言</string>
-    <string name="switch_language">English</string>
-
-    <!-- SIM Card -->
-    <string name="select_sim">选择 SIM 卡</string>
-    <string name="sim_card">SIM 卡</string>
-
-    <!-- Network Settings -->
-    <string name="go_to_network_settings">前往网络设置</string>
-    <string name="config_success_message">配置已成功应用！是否前往网络设置？</string>
-    <string name="later">稍后</string>
 </resources>

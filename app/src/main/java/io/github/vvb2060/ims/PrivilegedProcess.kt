@@ -11,6 +11,7 @@ import android.system.Os
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
 import android.util.Log
+import android.widget.Toast
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
 
@@ -25,12 +26,12 @@ class PrivilegedProcess : Instrumentation() {
         val maxRetries = 50 // 最多等待 5 秒
         for (i in 0..<maxRetries) {
             if (Shizuku.pingBinder()) {
-                Log.i(TAG, "Shizuku binder is ready")
+                Log.i(TAG, "shizuku binder is ready")
                 break
             }
             try {
                 Thread.sleep(100)
-            } catch (e: InterruptedException) {
+            } catch (_: InterruptedException) {
                 break
             }
         }
@@ -38,8 +39,18 @@ class PrivilegedProcess : Instrumentation() {
         try {
             overrideConfig()
             Log.i(TAG, "overrideConfig completed successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to override config", e)
+            Toast.makeText(
+                context,
+                context.getString(R.string.config_success_message),
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (t: Throwable) {
+            Log.e(TAG, "failed to override config", t)
+            Toast.makeText(
+                context,
+                context.getString(R.string.config_failed, t.message),
+                Toast.LENGTH_LONG
+            ).show()
         }
         finish(0, Bundle())
     }
@@ -47,10 +58,9 @@ class PrivilegedProcess : Instrumentation() {
     @SuppressLint("MissingPermission", "NewApi")
     @Throws(Exception::class)
     private fun overrideConfig() {
-        Log.i(TAG, "overrideConfig started")
         val binder = ServiceManager.getService(Context.ACTIVITY_SERVICE)
         val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(binder))
-        Log.i(TAG, "Starting shell permission delegation")
+        Log.i(TAG, "starting shell permission delegation")
         am.startDelegateShellPermissionIdentity(Os.getuid(), null)
         try {
             val cm = context.getSystemService(CarrierConfigManager::class.java)
@@ -60,25 +70,19 @@ class PrivilegedProcess : Instrumentation() {
             // 读取用户选择的 SubId
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val selectedSubId = prefs.getInt("selected_subid", 1)
-            Log.i(TAG, "Selected SubId: $selectedSubId")
 
-            val subIds: IntArray
-            if (selectedSubId == -1) {
+            val subIds: IntArray = if (selectedSubId == -1) {
                 // 应用到所有 SIM 卡
-                subIds =
-                    sm.javaClass.getMethod("getActiveSubscriptionIdList").invoke(sm) as IntArray
-                Log.i(TAG, "Applying to all SIM cards")
+                sm.javaClass.getMethod("getActiveSubscriptionIdList").invoke(sm) as IntArray
             } else {
                 // 只应用到选中的 SIM 卡
-                subIds = intArrayOf(selectedSubId)
-                Log.i(TAG, "Applying to SIM: $selectedSubId")
+                intArrayOf(selectedSubId)
             }
 
             for (subId in subIds) {
-                Log.i(TAG, "Processing SubId: $subId")
                 val bundle = cm.getConfigForSubId(subId, "vvb2060_config_version")
                 val currentVersion = bundle.getInt("vvb2060_config_version", 0)
-                Log.i(TAG, "Current config version: $currentVersion")
+                Log.d(TAG, "current config version: $subId=$currentVersion")
 
                 if (currentVersion != BuildConfig.VERSION_CODE) {
                     values.putInt("vvb2060_config_version", BuildConfig.VERSION_CODE)
@@ -98,12 +102,12 @@ class PrivilegedProcess : Instrumentation() {
                         ).invoke(cm, subId, values, false)
                     }
                 } else {
-                    Log.i(TAG, "Config already up-to-date for SubId: $subId")
+                    Log.i(TAG, "config already up-to-date for SubId: $subId")
                 }
             }
         } finally {
             am.stopDelegateShellPermissionIdentity()
-            Log.i(TAG, "Stopped shell permission delegation")
+            Log.i(TAG, "stopped shell permission delegation")
         }
     }
 

@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +20,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -77,7 +75,6 @@ class MainActivity : ComponentActivity() {
 
                 var selectedSim by remember { mutableStateOf<SimSelection?>(null) }
                 var showSimSelectionDialog by remember { mutableStateOf(false) }
-                var showConfigAppliedDialog by remember { mutableStateOf(false) }
                 var showShizukuUpdateDialog by remember { mutableStateOf(false) }
 
                 LaunchedEffect(shizukuStatus) {
@@ -151,12 +148,6 @@ class MainActivity : ComponentActivity() {
                                     showSimSelectionDialog = false
                                 }
                             )
-                        }
-
-                        if (showConfigAppliedDialog) {
-                            ConfigAppliedDialog {
-                                showConfigAppliedDialog = false
-                            }
                         }
 
                         if (showShizukuUpdateDialog) {
@@ -428,20 +419,6 @@ fun SimSelectionDialog(
                 onSelectSim(selectedSim)
             }) {
                 Text(stringResource(id = android.R.string.ok))
-            }
-        }
-    )
-}
-
-@Composable
-fun ConfigAppliedDialog(dismissDialog: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = dismissDialog,
-        title = { Text(stringResource(id = R.string.config_applied)) },
-        text = { Text(stringResource(id = R.string.config_success_message)) },
-        confirmButton = {
-            TextButton(onClick = dismissDialog) {
-                Text(stringResource(id = R.string.later))
             }
         }
     )
