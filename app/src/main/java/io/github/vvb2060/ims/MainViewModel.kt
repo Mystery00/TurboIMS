@@ -1,43 +1,45 @@
 package io.github.vvb2060.ims
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
+import android.telephony.SubscriptionManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
+import androidx.core.content.edit
+import androidx.lifecycle.application
+import kotlinx.coroutines.flow.StateFlow
 
 private const val PREFS_NAME = "ims_config"
-
-data class MainUiState(
-    val androidVersion: String = "",
-    val shizukuStatus: ShizukuStatus = ShizukuStatus.CHECKING,
-    val selectedSim: SimSelection = SimSelection.SIM1,
-    val featureSwitches: Map<Feature, Boolean> = Feature.entries.associateWith { true },
-    val isApplyButtonEnabled: Boolean = false,
-    val showSimSelectionDialog: Boolean = false,
-    val showConfigAppliedDialog: Boolean = false,
-    val showShizukuUpdateDialog: Boolean = false,
-)
 
 enum class ShizukuStatus {
     CHECKING,
     NOT_RUNNING,
     NO_PERMISSION,
-    READY
+    READY,
+    NEED_UPDATE,
 }
 
-enum class SimSelection(val subId: Int) {
-    SIM1(1),
-    SIM2(2),
-    ALL(-1)
-}
+data class SimSelection(
+    val subId: Int,
+    val displayName: String,
+    val carrierName: String,
+    val simSlotIndex: Int,
+    val showTitle: String = buildString {
+        append("SIM ")
+        append(simSlotIndex + 1)
+        append(": ")
+        append(displayName)
+        append(" (${carrierName})")
+    }
+)
 
 enum class Feature(val key: String) {
     VOLTE("volte"),
@@ -50,15 +52,26 @@ enum class Feature(val key: String) {
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val _uiState = MutableStateFlow(MainUiState())
-    val uiState = _uiState.asStateFlow()
+    private val _androidVersion = MutableStateFlow("")
+    val androidVersion: StateFlow<String> = _androidVersion.asStateFlow()
 
-    private val prefs: SharedPreferences = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val _shizukuStatus = MutableStateFlow(ShizukuStatus.CHECKING)
+    val shizukuStatus: StateFlow<ShizukuStatus> = _shizukuStatus.asStateFlow()
+
+    private val _allSimList = MutableStateFlow<List<SimSelection>>(emptyList())
+    val allSimList: StateFlow<List<SimSelection>> = _allSimList.asStateFlow()
+
+    private val _featureSwitches = MutableStateFlow(Feature.entries.associateWith { true })
+    val featureSwitches: StateFlow<Map<Feature, Boolean>> = _featureSwitches.asStateFlow()
+
+    private val prefs: SharedPreferences =
+        application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     private val binderListener = Shizuku.OnBinderReceivedListener { updateShizukuStatus() }
     private val binderDeadListener = Shizuku.OnBinderDeadListener { updateShizukuStatus() }
 
     init {
+        loadSimList()
         loadPreferences()
         updateAndroidVersionInfo()
         updateShizukuStatus()
@@ -74,81 +87,79 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateShizukuStatus() {
         viewModelScope.launch {
+            if (Shizuku.isPreV11()) {
+                _shizukuStatus.value = ShizukuStatus.NEED_UPDATE
+            }
             val status = when {
                 !Shizuku.pingBinder() -> ShizukuStatus.NOT_RUNNING
                 Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuStatus.NO_PERMISSION
                 else -> ShizukuStatus.READY
             }
-            _uiState.update {
-                it.copy(
-                    shizukuStatus = status,
-                    isApplyButtonEnabled = status == ShizukuStatus.READY
-                )
-            }
+            _shizukuStatus.value = status
         }
     }
 
     fun requestShizukuPermission(requestCode: Int) {
-        if (Shizuku.isPreV11()) {
-            _uiState.update { it.copy(showShizukuUpdateDialog = true) }
-            return
+        viewModelScope.launch {
+            if (Shizuku.isPreV11()) {
+                _shizukuStatus.value = ShizukuStatus.NEED_UPDATE
+            } else {
+                Shizuku.requestPermission(requestCode)
+            }
         }
-        Shizuku.requestPermission(requestCode)
     }
 
     private fun loadPreferences() {
-        val featureSwitches = Feature.entries.associateWith {
-            prefs.getBoolean(it.key, true)
+        viewModelScope.launch {
+            val featureSwitches = Feature.entries.associateWith {
+                prefs.getBoolean(it.key, true)
+            }
+            _featureSwitches.value = featureSwitches
         }
-        _uiState.update { it.copy(featureSwitches = featureSwitches) }
     }
 
-    private fun savePreferences() {
-        prefs.edit().apply {
-            uiState.value.featureSwitches.forEach { (feature, enabled) ->
-                putBoolean(feature.key, enabled)
+    @SuppressLint("MissingPermission", "NewApi")
+    private fun loadSimList() {
+        viewModelScope.launch {
+            val sm = application.getSystemService(SubscriptionManager::class.java)
+            val list = sm.activeSubscriptionInfoList!!
+            val resultList = list.map {
+                SimSelection(
+                    it.subscriptionId,
+                    it.displayName.toString(),
+                    it.carrierName.toString(),
+                    it.simSlotIndex,
+                )
             }
-            apply()
+                .toMutableList()
+            resultList.add(0, SimSelection(-1, "", "", -1, "所有SIM"))
+            _allSimList.value = resultList
         }
     }
 
     private fun updateAndroidVersionInfo() {
-        val version = "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
-        _uiState.update { it.copy(androidVersion = version) }
-    }
-
-    fun onFeatureSwitchChange(feature: Feature, isChecked: Boolean) {
-        val updatedSwitches = _uiState.value.featureSwitches.toMutableMap()
-        updatedSwitches[feature] = isChecked
-        _uiState.update { it.copy(featureSwitches = updatedSwitches) }
-    }
-
-    fun onSelectSim(simSelection: SimSelection) {
-        _uiState.update { it.copy(selectedSim = simSelection, showSimSelectionDialog = false) }
-    }
-
-    fun onApplyConfiguration(context: Context) {
-        savePreferences()
-        prefs.edit().putInt("selected_subid", uiState.value.selectedSim.subId).apply()
-        ShizukuProvider.startInstrument(context)
         viewModelScope.launch {
-            kotlinx.coroutines.delay(3000)
-            _uiState.update { it.copy(showConfigAppliedDialog = true) }
+            val version = "Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})"
+            _androidVersion.value = version
         }
     }
 
-    fun openSimSelectionDialog() {
-        _uiState.update { it.copy(showSimSelectionDialog = true) }
+    fun onFeatureSwitchChange(feature: Feature, isChecked: Boolean) {
+        viewModelScope.launch {
+            val updatedSwitches = _featureSwitches.value.toMutableMap()
+            updatedSwitches[feature] = isChecked
+            _featureSwitches.value = updatedSwitches
+        }
     }
 
-    fun dismissSimSelectionDialog() {
-        _uiState.update { it.copy(showSimSelectionDialog = false) }
-    }
-
-    fun dismissConfigAppliedDialog() {
-        _uiState.update { it.copy(showConfigAppliedDialog = false) }
-    }
-    fun dismissShizukuUpdateDialog() {
-        _uiState.update { it.copy(showShizukuUpdateDialog = false) }
+    fun onApplyConfiguration(context: Context, selectedSim: SimSelection) {
+        prefs.edit().apply {
+            _featureSwitches.value.forEach { (feature, enabled) ->
+                putBoolean(feature.key, enabled)
+            }
+            apply()
+        }
+        prefs.edit { putInt("selected_subid", selectedSim.subId) }
+        ShizukuProvider.startInstrument(context)
     }
 }

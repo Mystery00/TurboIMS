@@ -1,71 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Turbo IMS</string>
-    <string name="for_pixel">for Pixel</string>
+    <string name="for_pixel">forked by Mystery0</string>
 
     <!-- Main Screen -->
-    <string name="title">Turbo IMS Configuration</string>
-    <string name="system_info">System Information</string>
-    <string name="android_version">Android Version: %s</string>
-    <string name="shizuku_status">Shizuku Status: %s</string>
-    <string name="shizuku_ready">✅ Ready</string>
-    <string name="shizuku_not_running">❌ Not Running</string>
-    <string name="shizuku_no_permission">⚠️ No Permission</string>
+    <string name="title">Turbo IMS 配置</string>
+    <string name="system_info">系统信息</string>
+    <string name="android_version">Android 版本：%s</string>
+    <string name="shizuku_status">Shizuku 状态：%s</string>
+    <string name="shizuku_ready">✅ 已就绪</string>
+    <string name="shizuku_not_running">❌ 未运行</string>
+    <string name="shizuku_no_permission">⚠️ 未授权</string>
     <string name="shizuku_checking">Checking…</string>
-    <string name="refresh_permission">Refresh</string>
-    <string name="request_permission">Request</string>
-
-    <!-- Warning -->
-    <string name="qpr2_beta3_warning">⚠️ WARNING: Android 16 QPR2 Beta 3+ restricts persistent configuration. Settings will reset after reboot and need to be reapplied.</string>
+    <string name="refresh_permission">刷新</string>
+    <string name="request_permission">请求</string>
 
     <!-- Features -->
-    <string name="features_config">Features Configuration</string>
-    <string name="volte">VoLTE (4G Voice)</string>
-    <string name="volte_desc">Enable 4G HD voice calling</string>
-    <string name="vowifi">VoWiFi (WiFi Calling)</string>
-    <string name="vowifi_desc">Enable WiFi network calling</string>
-    <string name="vt">VT (Video Calling)</string>
-    <string name="vt_desc">Enable video calling feature</string>
-    <string name="vonr">VoNR (5G Voice)</string>
-    <string name="vonr_desc">Enable 5G HD voice calling</string>
-    <string name="cross_sim">Cross-SIM Calling</string>
-    <string name="cross_sim_desc">Dual-SIM interconnection</string>
-    <string name="ut">UT Supplementary Services</string>
-    <string name="ut_desc">Call forwarding, call waiting, etc.</string>
-    <string name="_5g_nr">5G NR (NSA/SA)</string>
-    <string name="_5g_nr_desc">Enable 5G network (Non-standalone/Standalone)</string>
+    <string name="features_config">本次应用功能列表</string>
+    <string name="volte">VoLTE（4G 语音）</string>
+    <string name="volte_desc">启用 4G 高清语音通话</string>
+    <string name="vowifi">VoWiFi（WiFi 通话）</string>
+    <string name="vowifi_desc">启用 WiFi 网络通话</string>
+    <string name="vt">VT（视频通话）</string>
+    <string name="vt_desc">启用视频通话功能</string>
+    <string name="vonr">VoNR（5G 语音）</string>
+    <string name="vonr_desc">启用 5G 高清语音通话</string>
+    <string name="cross_sim">跨 SIM 通话</string>
+    <string name="cross_sim_desc">双卡互通功能</string>
+    <string name="ut">UT 补充服务</string>
+    <string name="ut_desc">呼叫转移、呼叫等待等</string>
+    <string name="_5g_nr">5G NR（NSA/SA）</string>
+    <string name="_5g_nr_desc">启用 5G 网络（非独立/独立组网）</string>
 
     <!-- Button -->
-    <string name="apply_config">Apply Configuration</string>
+    <string name="apply_config">应用配置</string>
 
     <!-- Tips -->
-    <string name="tips">Tips:\n• Shizuku must be started and authorized first\n• Configuration applies to all active SIM cards\n• Android 16 QPR2 Beta 3+ requires reapplication after reboot</string>
+    <string name="tips">提示：\n• 需要先启动并授权 Shizuku\n• 配置应用到选择的 SIM 卡\n• 配置是增加的形式，意思是打开之后再关闭不会去掉对应的配置</string>
 
     <!-- Messages -->
-    <string name="shizuku_not_running_msg">Shizuku is not running. Please start Shizuku first.</string>
-    <string name="shizuku_no_permission_msg">Please grant Shizuku permission</string>
-    <string name="config_applied">Configuration applied successfully!</string>
-    <string name="config_failed">Configuration failed: %s</string>
-    <string name="update_shizuku">Please update Shizuku to the latest version</string>
+    <string name="shizuku_not_running_msg">Shizuku 未运行，请先启动 Shizuku</string>
+    <string name="shizuku_no_permission_msg">请授予 Shizuku 权限</string>
+    <string name="config_applied">配置已应用！</string>
+    <string name="config_failed">配置失败：%s</string>
+    <string name="update_shizuku">请更新 Shizuku 到最新版本</string>
 
     <!-- Language -->
-    <string name="language">Language</string>
-    <string name="switch_language">中文</string>
+    <string name="language">语言</string>
+    <string name="switch_language">English</string>
 
     <!-- SIM Card -->
-    <string name="select_sim">Select SIM Card</string>
-    <string name="sim_card">SIM Card</string>
-    <string name="no_sim_found">No active SIM card found</string>
-    <string name="sim_1">SIM 1</string>
-    <string name="sim_2">SIM 2</string>
-    <string name="apply_to_all_sims">Apply to All SIM Cards</string>
-    <string name="apply_to_sim_1">Apply to SIM 1</string>
-    <string name="apply_to_sim_2">Apply to SIM 2</string>
-    <string name="apply_to_all">Apply to All</string>
-    <string name="config_applied_to_all">Configuration applied to all SIM cards!</string>
+    <string name="select_sim">选择 SIM 卡</string>
+    <string name="sim_card">SIM 卡</string>
 
     <!-- Network Settings -->
-    <string name="go_to_network_settings">Go to Network Settings</string>
-    <string name="config_success_message">Configuration applied successfully! Would you like to go to network settings?</string>
-    <string name="later">Later</string>
+    <string name="go_to_network_settings">前往网络设置</string>
+    <string name="config_success_message">配置已成功应用！是否前往网络设置？</string>
+    <string name="later">稍后</string>
 </resources>
