@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.telephony.SubscriptionManager
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,17 +42,9 @@ data class SimSelection(
     }
 )
 
-enum class Feature(val key: String) {
-    VOLTE("volte"),
-    VOWIFI("vowifi"),
-    VT("vt"),
-    VONR("vonr"),
-    CROSS_SIM("cross_sim"),
-    UT("ut"),
-    FIVE_G_NR("5g_nr")
-}
-
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+    private val TAG = "MainViewModel"
+
     private val _androidVersion = MutableStateFlow("")
     val androidVersion: StateFlow<String> = _androidVersion.asStateFlow()
 
@@ -61,8 +54,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _allSimList = MutableStateFlow<List<SimSelection>>(emptyList())
     val allSimList: StateFlow<List<SimSelection>> = _allSimList.asStateFlow()
 
-    private val _featureSwitches = MutableStateFlow(Feature.entries.associateWith { true })
-    val featureSwitches: StateFlow<Map<Feature, Boolean>> = _featureSwitches.asStateFlow()
+    private val _featureSwitches = MutableStateFlow<Map<Feature, Any>>(emptyMap())
+    val featureSwitches: StateFlow<Map<Feature, Any>> = _featureSwitches.asStateFlow()
 
     private val prefs: SharedPreferences =
         application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -111,8 +104,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadPreferences() {
         viewModelScope.launch {
-            val featureSwitches = Feature.entries.associateWith {
-                prefs.getBoolean(it.key, true)
+            val featureSwitches = linkedMapOf<Feature, Any>()
+            for (feature in Feature.entries) {
+                when (feature.valueType) {
+                    FeatureValueType.STRING -> {
+                        featureSwitches.put(feature, prefs.getString(feature.key, "")!!)
+                    }
+
+                    FeatureValueType.BOOLEAN -> {
+                        featureSwitches.put(feature, prefs.getBoolean(feature.key, true))
+                    }
+                }
             }
             _featureSwitches.value = featureSwitches
         }
@@ -144,22 +146,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onFeatureSwitchChange(feature: Feature, isChecked: Boolean) {
+    fun onFeatureSwitchChange(feature: Feature, value: Any) {
+        Log.i(TAG, "onFeatureSwitchChange: $feature, $value")
         viewModelScope.launch {
             val updatedSwitches = _featureSwitches.value.toMutableMap()
-            updatedSwitches[feature] = isChecked
+            updatedSwitches[feature] = value
             _featureSwitches.value = updatedSwitches
         }
     }
 
     fun onApplyConfiguration(context: Context, selectedSim: SimSelection) {
         prefs.edit().apply {
-            _featureSwitches.value.forEach { (feature, enabled) ->
-                putBoolean(feature.key, enabled)
+            putInt("selected_subid", selectedSim.subId)
+            _featureSwitches.value.forEach { (feature, value) ->
+                when (value) {
+                    is String -> putString(feature.key, value)
+                    is Boolean -> putBoolean(feature.key, value)
+                }
             }
             apply()
         }
-        prefs.edit { putInt("selected_subid", selectedSim.subId) }
         ShizukuProvider.startInstrument(context)
     }
 }

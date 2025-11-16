@@ -106,15 +106,23 @@ class PrivilegedProcess : Instrumentation() {
     private fun getConfig(): PersistableBundle {
         // 读取用户配置
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val enableVoLTE = prefs.getBoolean("volte", true)
-        val enableVoWiFi = prefs.getBoolean("vowifi", true)
-        val enableVT = prefs.getBoolean("vt", true)
-        val enableVoNR = prefs.getBoolean("vonr", true)
-        val enableCrossSIM = prefs.getBoolean("cross_sim", true)
-        val enableUT = prefs.getBoolean("ut", true)
-        val enable5GNR = prefs.getBoolean("5g_nr", true)
+        val carrierName = prefs.getString(Feature.CARRIER_NAME.key, "")
+        val enableVoLTE = prefs.getBoolean(Feature.VOLTE.key, true)
+        val enableVoWiFi = prefs.getBoolean(Feature.VOWIFI.key, true)
+        val enableVT = prefs.getBoolean(Feature.VT.key, true)
+        val enableVoNR = prefs.getBoolean(Feature.VONR.key, true)
+        val enableCrossSIM = prefs.getBoolean(Feature.CROSS_SIM.key, true)
+        val enableUT = prefs.getBoolean(Feature.UT.key, true)
+        val enable5GNR = prefs.getBoolean(Feature.FIVE_G_NR.key, true)
 
         val bundle = PersistableBundle()
+
+        // 运营商名称
+        if (carrierName?.isNotBlank() ?: false) {
+            bundle.putBoolean(CarrierConfigManager.KEY_CARRIER_NAME_OVERRIDE_BOOL, true)
+            bundle.putString(CarrierConfigManager.KEY_CARRIER_NAME_STRING, carrierName)
+            bundle.putString(CarrierConfigManager.KEY_CARRIER_CONFIG_VERSION_STRING, ":3")
+        }
 
         // VoLTE 配置
         if (enableVoLTE) {

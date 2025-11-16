@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -28,6 +30,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -41,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -48,6 +52,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,6 +60,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import io.github.vvb2060.ims.Feature
+import io.github.vvb2060.ims.FeatureValueType
 import io.github.vvb2060.ims.MainViewModel
 import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.ShizukuStatus
@@ -291,8 +297,8 @@ fun SimCardSelectionCard(
 
 @Composable
 fun FeaturesCard(
-    featureSwitches: Map<Feature, Boolean>,
-    onFeatureSwitchChange: (Feature, Boolean) -> Unit,
+    featureSwitches: Map<Feature, Any>,
+    onFeatureSwitchChange: (Feature, Any) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -309,31 +315,28 @@ fun FeaturesCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             Feature.entries.forEachIndexed { index, feature ->
-                val featureName = when (feature) {
-                    Feature.VOLTE -> R.string.volte
-                    Feature.VOWIFI -> R.string.vowifi
-                    Feature.VT -> R.string.vt
-                    Feature.VONR -> R.string.vonr
-                    Feature.CROSS_SIM -> R.string.cross_sim
-                    Feature.UT -> R.string.ut
-                    Feature.FIVE_G_NR -> R.string._5g_nr
+                val title = stringResource(feature.showTitleRes)
+                val description = stringResource(feature.showDescriptionRes)
+                when (feature.valueType) {
+                    FeatureValueType.STRING -> {
+                        StringFeatureItem(
+                            title = title,
+                            description = description,
+                            initInput = (featureSwitches[feature] ?: "") as String,
+                            onInputChange = { onFeatureSwitchChange(feature, it) },
+                        )
+                    }
+
+                    FeatureValueType.BOOLEAN -> {
+                        BooleanFeatureItem(
+                            title = title,
+                            description = description,
+                            checked = (featureSwitches[feature] ?: true) as Boolean,
+                            onCheckedChange = { onFeatureSwitchChange(feature, it) }
+                        )
+                    }
                 }
-                val featureDesc = when (feature) {
-                    Feature.VOLTE -> R.string.volte_desc
-                    Feature.VOWIFI -> R.string.vowifi_desc
-                    Feature.VT -> R.string.vt_desc
-                    Feature.VONR -> R.string.vonr_desc
-                    Feature.CROSS_SIM -> R.string.cross_sim_desc
-                    Feature.UT -> R.string.ut_desc
-                    Feature.FIVE_G_NR -> R.string._5g_nr_desc
-                }
-                FeatureItem(
-                    title = stringResource(id = featureName),
-                    description = stringResource(id = featureDesc),
-                    checked = featureSwitches[feature] ?: true,
-                    onCheckedChange = { onFeatureSwitchChange(feature, it) }
-                )
-                if (index < Feature.entries.size - 1) {
+                if (index < Feature.entries.lastIndex) {
                     HorizontalDivider(thickness = 0.5.dp)
                 }
             }
@@ -342,7 +345,62 @@ fun FeaturesCard(
 }
 
 @Composable
-fun FeatureItem(
+fun StringFeatureItem(
+    title: String,
+    description: String,
+    initInput: String,
+    onInputChange: (String) -> Unit
+) {
+    var input by remember { mutableStateOf(initInput) }
+    LaunchedEffect(initInput) {
+        input = initInput
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        OutlinedTextField(
+            modifier = Modifier
+                .weight(1F),
+            value = input,
+            onValueChange = {
+                input = it
+            },
+            label = {
+                Text(
+                    title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            },
+            placeholder = {
+                Text(description)
+            },
+            singleLine = true,
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    onInputChange(input)
+                }
+            ),
+        )
+        IconButton(
+            onClick = {
+                onInputChange(input)
+            }
+        ) {
+            Icon(painterResource(R.drawable.ic_done), null)
+        }
+    }
+}
+
+@Composable
+fun BooleanFeatureItem(
     title: String,
     description: String,
     checked: Boolean,
