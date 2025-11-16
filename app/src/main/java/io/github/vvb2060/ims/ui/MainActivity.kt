@@ -174,6 +174,14 @@ class MainActivity : ComponentActivity() {
                         }
                         FeaturesCard(featureSwitches, viewModel::onFeatureSwitchChange)
                         ApplyButton(selectedSim != null) {
+                            if (shizukuStatus != ShizukuStatus.READY) {
+                                Toast.makeText(
+                                    context,
+                                    R.string.shizuku_not_running_msg,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                return@ApplyButton
+                            }
                             viewModel.onApplyConfiguration(context, selectedSim!!)
                         }
                         Tips()
