@@ -48,6 +48,7 @@ android {
         debug {
             isMinifyEnabled = true
             isShrinkResources = true
+            @Suppress("UnstableApiUsage")
             vcsInfo.include = false
             proguardFiles("proguard-rules.pro")
             versionNameSuffix = ".d$gitVersionCode.$gitVersionName"
@@ -55,6 +56,7 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            @Suppress("UnstableApiUsage")
             vcsInfo.include = false
             proguardFiles("proguard-rules.pro")
             versionNameSuffix = ".r$gitVersionCode.$gitVersionName"
@@ -75,6 +77,11 @@ android {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
+    }
+    @Suppress("UnstableApiUsage")
+    androidResources {
+        localeFilters.add("en-US")
+        localeFilters.add("zh-rCN")
     }
 }
 

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Turbo IMS</string>
+    <string name="for_pixel">forked by Mystery0</string>
+
+    <!-- Main Screen -->
+    <string name="system_info">系统信息</string>
+    <string name="app_version">应用版本：%s</string>
+    <string name="android_version">Android 版本：%s</string>
+    <string name="security_patch_version">系统安全补丁版本：%s</string>
+    <string name="shizuku_status">Shizuku 状态：%s</string>
+    <string name="shizuku_ready">✅ 已就绪</string>
+    <string name="shizuku_not_running">❌ 未运行</string>
+    <string name="shizuku_no_permission">⚠️ 未授权</string>
+    <string name="shizuku_checking">检查中…</string>
+    <string name="refresh_permission">刷新</string>
+    <string name="request_permission">请求</string>
+
+    <!-- SIM Card -->
+    <string name="sim_card">本次应用的 SIM 卡</string>
+
+    <!-- Features -->
+    <string name="features_config">本次应用功能列表</string>
+    <string name="carrier_name">运营商名称</string>
+    <string name="carrier_name_desc">自定义运营商显示的名称，为空则不修改</string>
+    <string name="volte">VoLTE（4G 语音）</string>
+    <string name="volte_desc">启用 4G 高清语音通话</string>
+    <string name="vowifi">VoWiFi（WiFi 通话）</string>
+    <string name="vowifi_desc">启用 WiFi 网络通话</string>
+    <string name="vt">VT（视频通话）</string>
+    <string name="vt_desc">启用视频通话功能</string>
+    <string name="vonr">VoNR（5G 语音）</string>
+    <string name="vonr_desc">启用 5G 高清语音通话</string>
+    <string name="cross_sim">跨 SIM 通话</string>
+    <string name="cross_sim_desc">双卡互通功能</string>
+    <string name="ut">UT 补充服务</string>
+    <string name="ut_desc">呼叫转移、呼叫等待等</string>
+    <string name="_5g_nr">5G NR（NSA/SA）</string>
+    <string name="_5g_nr_desc">启用 5G 网络（非独立/独立组网）</string>
+    <string name="_5g_thresholds">5G信号强度阈值调整</string>
+    <string name="_5g_thresholds_desc">将 5G 信号强度阈值调整为与 LTE 阈值相同</string>
+
+    <!-- Button -->
+    <string name="apply_config">应用配置</string>
+    <string name="reset_config">重置配置</string>
+
+    <!-- Tips -->
+    <string name="tip">提示：</string>
+    <string-array name="tips">
+        <item>• 功能列表开关仅用于展示本次操作需要修改的内容，并不表示当前系统相关功能的开启情况</item>
+        <item>• 需要先启动并授权 Shizuku</item>
+        <item>• 配置生效到选择的 SIM 卡上</item>
+        <item>• 重置配置会回到一开始的状态，但是功能开关不会有变化</item>
+    </string-array>
+
+    <!-- Messages -->
+    <string name="shizuku_not_running_msg">Shizuku 未运行，请先启动 Shizuku</string>
+    <string name="shizuku_no_permission_msg">请授予 Shizuku 权限</string>
+    <string name="phone_no_permission_msg">请授予读取SIM卡权限</string>
+    <string name="config_success_message">配置已应用！</string>
+    <string name="config_success_reset_message">配置已重置！</string>
+    <string name="config_failed">配置失败：%s</string>
+    <string name="update_shizuku">请更新 Shizuku 到最新版本</string>
+</resources>

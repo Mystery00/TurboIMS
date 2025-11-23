@@ -4,64 +4,61 @@
     <string name="for_pixel">forked by Mystery0</string>
 
     <!-- Main Screen -->
-    <string name="system_info">系统信息</string>
-    <string name="app_version">应用版本：%s</string>
-    <string name="android_version">Android 版本：%s</string>
-    <string name="security_patch_version">系统安全补丁版本：%s</string>
-    <string name="shizuku_status">Shizuku 状态：%s</string>
-    <string name="shizuku_ready">✅ 已就绪</string>
-    <string name="shizuku_not_running">❌ 未运行</string>
-    <string name="shizuku_no_permission">⚠️ 未授权</string>
-    <string name="shizuku_checking">检查中…</string>
-    <string name="refresh_permission">刷新</string>
-    <string name="request_permission">请求</string>
+    <string name="system_info">System Info</string>
+    <string name="app_version">App Version: %s</string>
+    <string name="android_version">Android Version: %s</string>
+    <string name="security_patch_version">Security Patch Version: %s</string>
+    <string name="shizuku_status">Shizuku Status: %s</string>
+    <string name="shizuku_ready">✅ Ready</string>
+    <string name="shizuku_not_running">❌ Not Running</string>
+    <string name="shizuku_no_permission">⚠️ No Permission</string>
+    <string name="shizuku_checking">Checking…</string>
+    <string name="refresh_permission">Refresh</string>
+    <string name="request_permission">Request</string>
 
     <!-- SIM Card -->
-    <string name="sim_card">本次应用的 SIM 卡</string>
-    <string name="select_sim">选择 SIM 卡</string>
+    <string name="sim_card">SIM Card for this apply</string>
 
     <!-- Features -->
-    <string name="features_config">本次应用功能列表</string>
-    <string name="carrier_name">运营商名称</string>
-    <string name="carrier_name_desc">自定义运营商显示的名称，为空则不修改</string>
-    <string name="volte">VoLTE（4G 语音）</string>
-    <string name="volte_desc">启用 4G 高清语音通话</string>
-    <string name="vowifi">VoWiFi（WiFi 通话）</string>
-    <string name="vowifi_desc">启用 WiFi 网络通话</string>
-    <string name="vt">VT（视频通话）</string>
-    <string name="vt_desc">启用视频通话功能</string>
-    <string name="vonr">VoNR（5G 语音）</string>
-    <string name="vonr_desc">启用 5G 高清语音通话</string>
-    <string name="cross_sim">跨 SIM 通话</string>
-    <string name="cross_sim_desc">双卡互通功能</string>
-    <string name="ut">UT 补充服务</string>
-    <string name="ut_desc">呼叫转移、呼叫等待等</string>
-    <string name="_5g_nr">5G NR（NSA/SA）</string>
-    <string name="_5g_nr_desc">启用 5G 网络（非独立/独立组网）</string>
-    <string name="_5g_thresholds">5G信号强度阈值调整</string>
-    <string name="_5g_thresholds_desc">将 5G 信号强度阈值调整为与 LTE 阈值相同</string>
+    <string name="features_config">Features for this apply</string>
+    <string name="carrier_name">Carrier Name</string>
+    <string name="carrier_name_desc">Customize the carrier name, leave blank for no change</string>
+    <string name="volte">VoLTE (4G Voice)</string>
+    <string name="volte_desc">Enable 4G HD voice calls</string>
+    <string name="vowifi">VoWiFi (WiFi Calling)</string>
+    <string name="vowifi_desc">Enable calling over WiFi networks</string>
+    <string name="vt">VT (Video Calling)</string>
+    <string name="vt_desc">Enable video calling</string>
+    <string name="vonr">VoNR (5G Voice)</string>
+    <string name="vonr_desc">Enable 5G HD voice calls</string>
+    <string name="cross_sim">Cross SIM Calling</string>
+    <string name="cross_sim_desc">Dual-SIM interconnection</string>
+    <string name="ut">UT Supplementary Services</string>
+    <string name="ut_desc">Call forwarding, call waiting, etc.</string>
+    <string name="_5g_nr">5G NR (NSA/SA)</string>
+    <string name="_5g_nr_desc">Enable 5G network (Non-Standalone/Standalone)</string>
+    <string name="_5g_thresholds">5G Signal Strength Threshold Adjustment</string>
+    <string name="_5g_thresholds_desc">Adjust 5G signal strength thresholds to be the same as LTE thresholds</string>
 
     <!-- Button -->
-    <string name="apply_config">应用配置</string>
-    <string name="reset_config">重置配置</string>
+    <string name="apply_config">Apply</string>
+    <string name="reset_config">Reset</string>
 
     <!-- Tips -->
-    <string name="tip">提示：</string>
+    <string name="tip">Tips:</string>
     <string-array name="tips">
-        <item>!• 功能列表开关仅用于展示本次操作需要修改的内容，并不表示当前系统相关功能的开启情况</item>
-        <item>!• 功能列表开关仅用于展示本次操作需要修改的内容，并不表示当前系统相关功能的开启情况</item>
-        <item>!• 功能列表开关仅用于展示本次操作需要修改的内容，并不表示当前系统相关功能的开启情况</item>
-        <item>• 需要先启动并授权 Shizuku</item>
-        <item>• 配置生效到选择的 SIM 卡上</item>
-        <item>• 重置配置会回到一开始的状态，但是功能开关不会有变化</item>
+        <item>• The feature list switch is only used to show the content to be modified in this operation, and does not indicate the current status of related system functions.</item>
+        <item>• Shizuku needs to be started and authorized first.</item>
+        <item>• The configuration takes effect on the selected SIM card.</item>
+        <item>• Resetting the configuration will revert to the initial state, but the feature switches will not change.</item>
     </string-array>
 
     <!-- Messages -->
-    <string name="shizuku_not_running_msg">Shizuku 未运行，请先启动 Shizuku</string>
-    <string name="shizuku_no_permission_msg">请授予 Shizuku 权限</string>
-    <string name="phone_no_permission_msg">请授予读取SIM卡权限</string>
-    <string name="config_success_message">配置已应用！</string>
-    <string name="config_success_reset_message">配置已重置！</string>
-    <string name="config_failed">配置失败：%s</string>
-    <string name="update_shizuku">请更新 Shizuku 到最新版本</string>
+    <string name="shizuku_not_running_msg">Shizuku is not running, please start Shizuku first</string>
+    <string name="shizuku_no_permission_msg">Please grant Shizuku permission</string>
+    <string name="phone_no_permission_msg">Please grant permission to read SIM card</string>
+    <string name="config_success_message">Configuration applied!</string>
+    <string name="config_success_reset_message">Configuration reset!</string>
+    <string name="config_failed">Configuration failed: %s</string>
+    <string name="update_shizuku">Please update Shizuku to the latest version</string>
 </resources>
