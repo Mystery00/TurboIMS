@@ -47,7 +47,7 @@
     <!-- Tips -->
     <string name="tip">提示：</string>
     <string-array name="tips">
-        <item>• 功能列表开关仅用于展示本次操作需要修改的内容，并不表示当前系统相关功能的开启情况</item>
+        <item>!• 功能列表开关仅用于展示本次操作需要修改的内容，并不表示当前系统相关功能的开启情况</item>
         <item>• 需要先启动并授权 Shizuku</item>
         <item>• 配置生效到选择的 SIM 卡上</item>
         <item>• 重置配置会回到一开始的状态，但是功能开关不会有变化</item>

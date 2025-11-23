@@ -47,7 +47,7 @@
     <!-- Tips -->
     <string name="tip">Tips:</string>
     <string-array name="tips">
-        <item>• The feature list switch is only used to show the content to be modified in this operation, and does not indicate the current status of related system functions.</item>
+        <item>!• The feature list switch is only used to show the content to be modified in this operation, and does not indicate the current status of related system functions.</item>
         <item>• Shizuku needs to be started and authorized first.</item>
         <item>• The configuration takes effect on the selected SIM card.</item>
         <item>• Resetting the configuration will revert to the initial state, but the feature switches will not change.</item>
