@@ -10,7 +10,6 @@ import io.github.vvb2060.ims.LogcatRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileOutputStream
 
 class LogcatViewModel(application: Application) : AndroidViewModel(application) {
     val logs = LogcatRepository.logs
@@ -27,12 +26,9 @@ class LogcatViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             File(application.externalCacheDir, "turbo_ims.log").apply {
                 writeText("TurboIms Logcat:\n")
-                Runtime.getRuntime()
-                    .exec(arrayOf("logcat", "-d")).inputStream.use { input ->
-                        FileOutputStream(this, true).use {
-                            input.copyTo(it)
-                        }
-                    }
+                logs.map { it.raw }.forEach {
+                    appendText(it + "\n")
+                }
 
                 val authority = "${application.packageName}.logcat_fileprovider"
                 val uri = FileProvider.getUriForFile(application, authority, this)

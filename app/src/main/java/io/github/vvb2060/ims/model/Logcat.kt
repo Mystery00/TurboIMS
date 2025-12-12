@@ -10,6 +10,7 @@ data class LogEntry(
     val tag: String? = "",
     val pid: Int? = 0,
     val tid: Int? = 0,
+    val raw: String = "",
 ) {
     companion object {
         fun parseLog(line: String): LogEntry {
@@ -60,7 +61,8 @@ data class LogEntry(
                 content = content,
                 tag = tag,
                 pid = pidStr.toIntOrNull(),
-                tid = tidStr.toIntOrNull()
+                tid = tidStr.toIntOrNull(),
+                raw = line,
             )
         }
     }

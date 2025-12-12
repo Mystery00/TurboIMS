@@ -113,7 +113,7 @@ fun LogItem(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    modifier = Modifier.offset(y = (-1.5).dp)
+                    modifier = Modifier.offset(y = (-2.5).dp)
                 )
             }
             Spacer(modifier = Modifier.width(4.dp))

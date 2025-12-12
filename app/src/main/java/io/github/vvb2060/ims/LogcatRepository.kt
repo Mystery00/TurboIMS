@@ -41,6 +41,7 @@ object LogcatRepository {
                 var line: String? = null
 
                 while (isActive && bufferedReader.readLine().also { line = it } != null) {
+                    if (!isCapturing) break
                     line?.let { rawLog ->
                         val entry = LogEntry.parseLog(rawLog)
                         withContext(Dispatchers.Main) {
@@ -54,6 +55,8 @@ object LogcatRepository {
             } catch (e: Exception) {
                 Log.e(TAG, "read logcat error", e)
             } finally {
+                logProcess?.destroy()
+                logProcess = null
                 isCapturing = false
             }
         }
