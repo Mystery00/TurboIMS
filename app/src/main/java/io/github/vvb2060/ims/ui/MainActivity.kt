@@ -1,6 +1,5 @@
 package io.github.vvb2060.ims.ui
 
-import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -69,16 +68,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
 import io.github.vvb2060.ims.BuildConfig
 import io.github.vvb2060.ims.Feature
 import io.github.vvb2060.ims.FeatureValueType
-import io.github.vvb2060.ims.viewmodel.MainViewModel
 import io.github.vvb2060.ims.R
+import io.github.vvb2060.ims.ui.theme.TurbolImsTheme
+import io.github.vvb2060.ims.viewmodel.MainViewModel
 import io.github.vvb2060.ims.viewmodel.ShizukuStatus
 import io.github.vvb2060.ims.viewmodel.SimSelection
-import io.github.vvb2060.ims.ui.theme.TurbolImsTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 class MainActivity : ComponentActivity() {
@@ -92,8 +89,6 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val uriHandler = LocalUriHandler.current
 
-                val readPhoneStatePermission =
-                    rememberPermissionState(Manifest.permission.READ_PHONE_STATE)
                 val scrollBehavior =
                     TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
@@ -105,16 +100,6 @@ class MainActivity : ComponentActivity() {
                 var selectedSim by remember { mutableStateOf<SimSelection?>(null) }
                 var showShizukuUpdateDialog by remember { mutableStateOf(false) }
 
-                LaunchedEffect(Unit) {
-                    if (readPhoneStatePermission.status != PermissionStatus.Granted) {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.phone_no_permission_msg),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        readPhoneStatePermission.launchPermissionRequest()
-                    }
-                }
                 LaunchedEffect(shizukuStatus) {
                     if (shizukuStatus == ShizukuStatus.NEED_UPDATE) {
                         showShizukuUpdateDialog = true

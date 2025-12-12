@@ -1,24 +1,28 @@
 package io.github.vvb2060.ims.viewmodel
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
-import android.telephony.SubscriptionManager
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import com.android.internal.telephony.ISub
 import io.github.vvb2060.ims.Feature
 import io.github.vvb2060.ims.FeatureValueType
+import io.github.vvb2060.ims.ImsModifier
 import io.github.vvb2060.ims.ShizukuProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
+import rikka.shizuku.ShizukuBinderWrapper
+import rikka.shizuku.SystemServiceHelper
 
 private const val PREFS_NAME = "ims_config"
 
@@ -124,20 +128,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    @SuppressLint("MissingPermission", "NewApi")
     fun loadSimList() {
         viewModelScope.launch {
-            val sm = application.getSystemService(SubscriptionManager::class.java)
-            val list = sm.activeSubscriptionInfoList!!
-            val resultList = list.map {
+            val simInfoList = ShizukuProvider.readSimInfoList(application)
+            val resultList = simInfoList.map {
                 SimSelection(
-                    it.subscriptionId,
-                    it.displayName.toString(),
-                    it.carrierName.toString(),
+                    it.subId,
+                    it.displayName,
+                    it.carrierName,
                     it.simSlotIndex,
                 )
-            }
-                .toMutableList()
+            }.toMutableList()
             resultList.add(0, SimSelection(-1, "", "", -1, "所有SIM"))
             _allSimList.value = resultList
         }
@@ -159,21 +160,38 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onApplyConfiguration(context: Context, selectedSim: SimSelection) {
-        prefs.edit().apply {
-            putInt("selected_subid", selectedSim.subId)
-            _featureSwitches.value.forEach { (feature, value) ->
-                when (value) {
-                    is String -> putString(feature.key, value)
-                    is Boolean -> putBoolean(feature.key, value)
-                }
-            }
-            apply()
+    fun onApplyConfiguration(selectedSim: SimSelection) {
+        viewModelScope.launch {
+            val map = _featureSwitches.value
+            val selectedSubId = selectedSim.subId
+            val carrierName = map[Feature.CARRIER_NAME] as String?
+            val enableVoLTE = map.getOrDefault(Feature.VOLTE, true) as Boolean
+            val enableVoWiFi = map.getOrDefault(Feature.VOWIFI, true) as Boolean
+            val enableVT = map.getOrDefault(Feature.VT, true) as Boolean
+            val enableVoNR = map.getOrDefault(Feature.VONR, true) as Boolean
+            val enableCrossSIM = map.getOrDefault(Feature.CROSS_SIM, true) as Boolean
+            val enableUT = map.getOrDefault(Feature.UT, true) as Boolean
+            val enable5GNR = map.getOrDefault(Feature.FIVE_G_NR, true) as Boolean
+            val enable5GThreshold = map.getOrDefault(Feature.FIVE_G_THRESHOLDS, true) as Boolean
+
+            val bundle = ImsModifier.buildBundle(
+                carrierName,
+                enableVoLTE,
+                enableVoWiFi,
+                enableVT,
+                enableVoNR,
+                enableCrossSIM,
+                enableUT,
+                enable5GNR,
+                enable5GThreshold
+            )
+            bundle.putInt(ImsModifier.BUNDLE_SELECT_SIM_ID, selectedSubId)
+
+            val result = ShizukuProvider.overrideImsConfig(application, bundle)
         }
-        ShizukuProvider.Companion.startInstrument(context)
     }
 
     fun onResetConfiguration(context: Context) {
-        ShizukuProvider.Companion.startInstrument(context, true)
+        ShizukuProvider.startInstrument(context, true)
     }
 }
