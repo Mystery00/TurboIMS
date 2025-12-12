@@ -1,6 +1,7 @@
 package io.github.vvb2060.ims.ui
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -25,6 +26,8 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -70,10 +73,10 @@ import com.google.accompanist.permissions.rememberPermissionState
 import io.github.vvb2060.ims.BuildConfig
 import io.github.vvb2060.ims.Feature
 import io.github.vvb2060.ims.FeatureValueType
-import io.github.vvb2060.ims.MainViewModel
+import io.github.vvb2060.ims.viewmodel.MainViewModel
 import io.github.vvb2060.ims.R
-import io.github.vvb2060.ims.ShizukuStatus
-import io.github.vvb2060.ims.SimSelection
+import io.github.vvb2060.ims.viewmodel.ShizukuStatus
+import io.github.vvb2060.ims.viewmodel.SimSelection
 import io.github.vvb2060.ims.ui.theme.TurbolImsTheme
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
@@ -148,6 +151,16 @@ class MainActivity : ComponentActivity() {
                             },
                             scrollBehavior = scrollBehavior,
                             actions = {
+                                IconButton(onClick = {
+                                    startActivity(
+                                        Intent(
+                                            this@MainActivity,
+                                            LogcatActivity::class.java
+                                        )
+                                    )
+                                }) {
+                                    Icon(imageVector = Icons.Default.BugReport, null)
+                                }
                                 IconButton(onClick = {
                                     uriHandler.openUri("https://github.com/Mystery00/TurboIMS")
                                 }) {

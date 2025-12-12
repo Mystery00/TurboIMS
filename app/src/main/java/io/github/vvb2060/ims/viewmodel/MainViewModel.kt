@@ -1,4 +1,4 @@
-package io.github.vvb2060.ims
+package io.github.vvb2060.ims.viewmodel
 
 import android.annotation.SuppressLint
 import android.app.Application
@@ -11,6 +11,9 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import io.github.vvb2060.ims.Feature
+import io.github.vvb2060.ims.FeatureValueType
+import io.github.vvb2060.ims.ShizukuProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -167,10 +170,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             apply()
         }
-        ShizukuProvider.startInstrument(context)
+        ShizukuProvider.Companion.startInstrument(context)
     }
 
     fun onResetConfiguration(context: Context) {
-        ShizukuProvider.startInstrument(context, true)
+        ShizukuProvider.Companion.startInstrument(context, true)
     }
 }

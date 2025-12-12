@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.1"
+agp = "8.13.2"
 kotlin = "2.2.21"
 
 app-version = "3.3"
@@ -12,11 +12,13 @@ shizuku = "13.1.5"
 
 coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.0"
-composeBom = "2025.11.01"
+activityCompose = "1.12.1"
+composeBom = "2025.12.00"
+material3 = "1.5.0-alpha10"
 androidx-splashscreen = "1.2.0"
 lifecycle = "2.10.0"
 accompanist = "0.37.3"
+material-icons = "1.7.8"
 
 [libraries]
 shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
@@ -29,9 +31,11 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
-androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "material-icons" }
+material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "material-icons" }
 
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
 

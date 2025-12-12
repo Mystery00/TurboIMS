@@ -5,10 +5,10 @@
     <application
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/JetpackSplashTheme"
-        android:localeConfig="@xml/locales_config">
+        android:theme="@style/JetpackSplashTheme">
 
         <activity
             android:name=".ui.MainActivity"
@@ -19,6 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.LogcatActivity"
+            android:theme="@style/Theme.TurbolIms"
+            android:exported="true" />
 
         <provider
             android:name=".ShizukuProvider"

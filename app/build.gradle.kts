@@ -24,6 +24,14 @@ val gitVersionName: String =
     }.standardOutput.asText.get().trim()
 val appVersionName: String = libs.versions.app.version.get()
 
+kotlin {
+    compilerOptions {
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3ExpressiveApi")
+        optIn.add("com.google.accompanist.permissions.ExperimentalPermissionsApi")
+    }
+}
+
 android {
     namespace = packageName
     compileSdk {
@@ -46,11 +54,10 @@ android {
     }
     buildTypes {
         debug {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             @Suppress("UnstableApiUsage")
             vcsInfo.include = false
-            proguardFiles("proguard-rules.pro")
             versionNameSuffix = ".d$gitVersionCode.$gitVersionName"
         }
         release {
@@ -98,6 +105,8 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.material.icons.core)
+    implementation(libs.material.icons.extended)
     implementation(libs.androidx.splashscreen)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.accompanist.permissions)
