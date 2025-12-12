@@ -62,4 +62,7 @@
     <string name="config_success_reset_message">Configuration reset!</string>
     <string name="config_failed">Configuration failed: %s</string>
     <string name="update_shizuku">Please update Shizuku to the latest version</string>
+
+    <!-- Logcat -->
+    <string name="title_filter_log_level">Select filter log level</string>
 </resources>

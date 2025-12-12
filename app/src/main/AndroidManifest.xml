@@ -21,8 +21,8 @@
         </activity>
         <activity
             android:name=".ui.LogcatActivity"
-            android:theme="@style/Theme.TurbolIms"
-            android:exported="true" />
+            android:exported="true"
+            android:theme="@style/Theme.TurbolIms" />
 
         <provider
             android:name=".ShizukuProvider"
@@ -30,11 +30,19 @@
             android:exported="true"
             android:multiprocess="false"
             android:permission="android.permission.NETWORK_SETTINGS" />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.logcat_fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/logcat_filepaths" />
+        </provider>
     </application>
 
     <instrumentation
         android:name="io.github.vvb2060.ims.PrivilegedProcess"
         android:label="IMS Configurator"
         android:targetPackage="${applicationId}" />
-
 </manifest>

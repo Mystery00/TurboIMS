@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.rounded.Cached
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -335,7 +336,10 @@ fun SimCardSelectionCard(
                         .padding(bottom = 16.dp)
                 )
                 IconButton(onClick = onRefreshSimList) {
-                    Icon(painterResource(R.drawable.ic_refresh), null)
+                    Icon(
+                        imageVector = Icons.Rounded.Cached,
+                        contentDescription = "Refresh"
+                    )
                 }
             }
             Column {

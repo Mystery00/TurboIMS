@@ -54,6 +54,8 @@ android {
     }
     buildTypes {
         debug {
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "TurboIMS-debug")
             isMinifyEnabled = false
             isShrinkResources = false
             @Suppress("UnstableApiUsage")

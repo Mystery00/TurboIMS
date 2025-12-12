@@ -62,4 +62,7 @@
     <string name="config_success_reset_message">配置已重置！</string>
     <string name="config_failed">配置失败：%s</string>
     <string name="update_shizuku">请更新 Shizuku 到最新版本</string>
+
+    <!-- Logcat -->
+    <string name="title_filter_log_level">请选择日志过滤等级</string>
 </resources>
