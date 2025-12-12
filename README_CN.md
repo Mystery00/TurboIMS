@@ -63,8 +63,17 @@ TurboIMS 是一个允许您在 Google Pixel 手机上启用或禁用 VoLTE（高
 4.  **应用**: 点击“应用配置”按钮。
 
 
+## 项目说明
+
+本项目最初 fork 自 [Turbo1123/TurboIMS](https://github.com/Turbo1123/TurboIMS)。在使用原项目的过程中，由于遇到诸多问题，我决定对整个代码库进行彻底重构。这包括重写 SIM 卡读取、运营商配置的核心逻辑，以及重新设计 UI 和图标。
+
+此外，本项目还引入了**运营商名称修改**和**日志查看**等新功能。尽管本项目保留了原有的 fork 关系和名称，但代码逻辑已发生根本性变化，几乎与原项目无关，因此后续不计划合并上游代码。作为我自己和朋友们日常使用的工具，只要大家还有需求，我就会持续维护下去。
+
 ## 鸣谢
 
+- **[vvb2060/Ims](https://github.com/vvb2060/Ims)**
+- **[nullbytepl/CarrierVanityName](https://github.com/nullbytepl/CarrierVanityName)**: 运营商名称修改功能的代码参考自此项目。
+- **[kyujin-cho/pixel-volte-patch](https://github.com/kyujin-cho/pixel-volte-patch)**
 - App 图标源于 [iconfont](https://www.iconfont.cn/collections/detail?cid=28924) 平台的设计，并在此基础上进行了修改以适配本项目。
 
 ## 免责声明

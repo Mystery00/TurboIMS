@@ -63,8 +63,17 @@ TurboIMS is a tool that allows you to enable or disable IMS features like Voice 
 4.  **Apply**: Tap the "Apply Configuration" button.
 
 
+## About this Project
+
+This project originated as a fork of [Turbo1123/TurboIMS](https://github.com/Turbo1123/TurboIMS). However, due to various stability issues encountered during usage, the codebase has undergone a complete refactoring. This includes rewriting the core logic for SIM card reading and carrier configuration, as well as redesigning the UI and icons.
+
+Major new features, such as **Carrier Name modification** and **Logcat viewer**, have also been introduced. Although the project retains the original name and fork history, the code has diverged significantly, and there are no plans to merge upstream changes. As an active user myself along with friends, I am committed to maintaining this project for as long as it serves a purpose.
+
 ## Credits
 
+- **[vvb2060/Ims](https://github.com/vvb2060/Ims)**
+- **[nullbytepl/CarrierVanityName](https://github.com/nullbytepl/CarrierVanityName)**: Carrier name modification logic is derived from this project.
+- **[kyujin-cho/pixel-volte-patch](https://github.com/kyujin-cho/pixel-volte-patch)**
 - The app icon is based on an original design from [iconfont](https://www.iconfont.cn/collections/detail?cid=28924), modified for use in this project.
 
 ## Disclaimer
