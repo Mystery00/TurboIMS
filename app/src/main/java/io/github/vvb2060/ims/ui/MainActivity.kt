@@ -384,6 +384,7 @@ fun FeaturesCard(
             val showFeatures = Feature.entries.toMutableList()
             if (!showCarrierName) {
                 showFeatures.remove(Feature.CARRIER_NAME)
+                showFeatures.remove(Feature.COUNTRY_ISO)
             }
             showFeatures.forEachIndexed { index, feature ->
                 val title = stringResource(feature.showTitleRes)

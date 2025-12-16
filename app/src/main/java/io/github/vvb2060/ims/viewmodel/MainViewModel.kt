@@ -108,6 +108,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val carrierName =
                 if (selectedSim.subId == -1) null else map[Feature.CARRIER_NAME] as String?
+            val countryISO =
+                if (selectedSim.subId == -1) null else map[Feature.COUNTRY_ISO] as String?
             val enableVoLTE = map.getOrDefault(Feature.VOLTE, true) as Boolean
             val enableVoWiFi = map.getOrDefault(Feature.VOWIFI, true) as Boolean
             val enableVT = map.getOrDefault(Feature.VT, true) as Boolean
@@ -119,6 +121,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             val bundle = ImsModifier.buildBundle(
                 carrierName,
+                countryISO,
                 enableVoLTE,
                 enableVoWiFi,
                 enableVT,

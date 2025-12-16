@@ -25,6 +25,8 @@
     <string name="features_config">Features for this apply</string>
     <string name="carrier_name">Carrier Name</string>
     <string name="carrier_name_desc">Customize carrier name</string>
+    <string name="country_iso">Country ISO</string>
+    <string name="country_iso_desc">Customize country ISO code</string>
     <string name="volte">VoLTE (4G Voice)</string>
     <string name="volte_desc">Enable 4G HD voice calls</string>
     <string name="vowifi">VoWiFi (WiFi Calling)</string>
