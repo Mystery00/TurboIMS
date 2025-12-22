@@ -52,6 +52,7 @@ TurboIMS 是一个允许您在 Google Pixel 手机上启用或禁用 VoLTE（高
     - Pixel 7, 7 Pro, 7a
     - Pixel 8, 8 Pro, 8a
     - Pixel 9, 9 Pro, 9 Pro XL, 9 Pro Fold
+    - Pixel 10, 10 Pro, 10 Pro XL
     - Pixel Fold, Pixel Tablet
     - **注意:** 搭载 Qualcomm Snapdragon 芯片的设备（Pixel 5 及更早机型）**不支持**。
 - Android 13 或更高版本

@@ -52,6 +52,7 @@ TurboIMS is a tool that allows you to enable or disable IMS features like Voice 
     - Pixel 7, 7 Pro, 7a
     - Pixel 8, 8 Pro, 8a
     - Pixel 9, 9 Pro, 9 Pro XL, 9 Pro Fold
+    - Pixel 10, 10 Pro, 10 Pro XL
     - Pixel Fold, Pixel Tablet
     - **Note:** Devices with Qualcomm Snapdragons (Pixel 5 and older) are NOT supported.
 - Android 13 or higher
