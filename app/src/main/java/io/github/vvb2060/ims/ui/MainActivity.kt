@@ -116,7 +116,12 @@ class MainActivity : BaseActivity() {
         }
 
         var showSystemConfigDialog by remember { mutableStateOf(false) }
-        var systemConfigData by remember { mutableStateOf<Map<Feature, FeatureValue>?>(null) }
+        // Pair<ConfigMap, IsImsRegistered?>
+        var systemConfigData by remember {
+            mutableStateOf<Pair<Map<Feature, FeatureValue>, Boolean?>?>(
+                null
+            )
+        }
         val scope = rememberCoroutineScope()
 
         if (showSystemConfigDialog && systemConfigData != null) {
@@ -679,8 +684,10 @@ fun ShizukuUpdateDialog(dismissDialog: () -> Unit) {
 @Composable
 fun SystemConfigDialog(
     onDismissRequest: () -> Unit,
-    configData: Map<Feature, FeatureValue>
+    // Pair<ConfigMap, IsImsRegistered?>
+    configData: Pair<Map<Feature, FeatureValue>, Boolean?>
 ) {
+    val (features, isImsRegistered) = configData
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(stringResource(id = R.string.system_config_title)) },
@@ -697,12 +704,25 @@ fun SystemConfigDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // IMS Status
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "IMS Status: ", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    if (isImsRegistered == null) {
+                        Text(text = "Unknown", fontSize = 14.sp)
+                    } else if (isImsRegistered) {
+                        Text(text = "✅ Registered", fontSize = 14.sp, color = Color(0xFF4CAF50))
+                    } else {
+                        Text(text = "❌ Not Registered", fontSize = 14.sp, color = Color.Red)
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+
                 // Construct summary string
                 val summary = buildString {
-                    val volte = configData[Feature.VOLTE]?.data as? Boolean ?: false
-                    val vowifi = configData[Feature.VOWIFI]?.data as? Boolean ?: false
-                    val vonr = configData[Feature.VONR]?.data as? Boolean ?: false
-                    val nr = configData[Feature.FIVE_G_NR]?.data as? Boolean ?: false
+                    val volte = features[Feature.VOLTE]?.data as? Boolean ?: false
+                    val vowifi = features[Feature.VOWIFI]?.data as? Boolean ?: false
+                    val vonr = features[Feature.VONR]?.data as? Boolean ?: false
+                    val nr = features[Feature.FIVE_G_NR]?.data as? Boolean ?: false
 
                     append("VoLTE: ${if (volte) "Enabled" else "Disabled"}\n")
                     append("VoWiFi: ${if (vowifi) "Enabled" else "Disabled"}\n")
@@ -722,7 +742,7 @@ fun SystemConfigDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                configData.forEach { (feature, value) ->
+                features.forEach { (feature, value) ->
                     val title = stringResource(feature.showTitleRes)
                     val valueStr = when (value.valueType) {
                         FeatureValueType.BOOLEAN -> (value.data as Boolean).toString()

@@ -232,16 +232,19 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
     }
 
     /**
-     * 通过 Shizuku 读取系统当前实际生效的 CarrierConfig。
-     * 返回详细的配置映射 Map。
+     * 通过 Shizuku 读取系统当前实际生效的 CarrierConfig 和 IMS 注册状态。
+     * 返回详细的配置映射 Map 和 IMS 注册状态 (Boolean?)。
      */
-    suspend fun loadRealSystemConfig(subId: Int): Map<Feature, FeatureValue>? {
+    suspend fun loadRealSystemConfig(subId: Int): Pair<Map<Feature, FeatureValue>, Boolean?>? {
         val bundle = ShizukuProvider.readCarrierConfig(
             application,
             subId,
             FeatureConfigMapper.readKeys
         ) ?: return null
-        return FeatureConfigMapper.fromBundle(bundle)
+
+        val imsStatus = ShizukuProvider.readImsRegistrationStatus(application, subId)
+
+        return Pair(FeatureConfigMapper.fromBundle(bundle), imsStatus)
     }
 
     /**

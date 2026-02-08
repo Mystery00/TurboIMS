@@ -57,4 +57,8 @@
         android:name=".privileged.ConfigReader"
         android:label="ConfigReader"
         android:targetPackage="${applicationId}" />
+    <instrumentation
+        android:name=".privileged.ImsStatusReader"
+        android:label="ImsStatusReader"
+        android:targetPackage="${applicationId}" />
 </manifest>
