@@ -49,4 +49,8 @@
         android:name=".privileged.SimReader"
         android:label="SimReader"
         android:targetPackage="${applicationId}" />
+    <instrumentation
+        android:name=".privileged.BrokerInstrumentation"
+        android:label="BrokerInstrumentation"
+        android:targetPackage="${applicationId}" />
 </manifest>

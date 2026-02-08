@@ -10,6 +10,7 @@ import android.os.ServiceManager
 import android.telephony.SubscriptionInfo
 import android.util.Log
 import io.github.vvb2060.ims.model.SimSelection
+import io.github.vvb2060.ims.privileged.BrokerInstrumentation
 import io.github.vvb2060.ims.privileged.ImsModifier
 import io.github.vvb2060.ims.privileged.SimReader
 import kotlinx.coroutines.CompletableDeferred
@@ -28,15 +29,47 @@ class ShizukuProvider : ShizukuProvider() {
         private const val TAG = "ShizukuProvider"
 
         suspend fun overrideImsConfig(context: Context, data: Bundle): String? {
-            val result = startInstrumentation(context, ImsModifier::class.java, data, true)
+            val primaryArgs = Bundle(data)
+            val result = startInstrumentation(context, ImsModifier::class.java, primaryArgs, true)
             if (result == null) {
                 Log.w(TAG, "overrideImsConfig: failed with empty result")
-                return "failed with empty result"
+                return tryOverrideWithBroker(context, data, "failed with empty result")
             }
             if (result.getBoolean(ImsModifier.BUNDLE_RESULT)) {
                 return null
             }
-            return result.getString(ImsModifier.BUNDLE_RESULT_MSG)
+            val msg = result.getString(ImsModifier.BUNDLE_RESULT_MSG) ?: "unknown error"
+            // Retry via broker when persistent override is restricted or result is empty.
+            return tryOverrideWithBroker(context, data, msg)
+        }
+
+        private suspend fun tryOverrideWithBroker(
+            context: Context,
+            data: Bundle,
+            msg: String,
+        ): String? {
+            if (!shouldRetryWithBroker(msg)) {
+                return msg
+            }
+            val brokerArgs = Bundle(data)
+            val brokerResult =
+                startInstrumentation(context, BrokerInstrumentation::class.java, brokerArgs, true)
+            if (brokerResult == null) {
+                return "$msg\n\nBroker: failed with empty result"
+            }
+            if (brokerResult.getBoolean(ImsModifier.BUNDLE_RESULT)) {
+                return null
+            }
+            val brokerMsg =
+                brokerResult.getString(ImsModifier.BUNDLE_RESULT_MSG) ?: "unknown error"
+            return "$msg\n\nBroker: $brokerMsg"
+        }
+
+        private fun shouldRetryWithBroker(msg: String): Boolean {
+            return msg.contains("SecurityException") ||
+                    msg.contains("does not have android.permission.MODIFY_PHONE_STATE") ||
+                    msg.contains("No permission to write to carrier config") ||
+                    msg.contains("failed with empty result")
         }
 
         suspend fun readSimInfoList(context: Context): List<SimSelection> {

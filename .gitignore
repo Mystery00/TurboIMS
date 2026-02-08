@@ -11,3 +11,5 @@ local.properties
 /app/release/
 GEMINI.md
 .agentdocs
+/.claude/
+/CLAUDE.md
