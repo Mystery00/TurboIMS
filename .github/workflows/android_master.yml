@@ -37,7 +37,7 @@ jobs:
       - name: Parse build files
         id: apk
         run: |
-          versionName=$(cat "app/build/outputs/apk/release/output-metadata.json" | jq -r '.elements[0].versionName')
+          versionName=$(cat "app/build/outputs/apk/debug/output-metadata.json" | jq -r '.elements[0].versionName')
           mv "app/build/outputs/apk/debug/app-debug.apk" "TurbolIms-debug-$versionName.apk"
           echo "versionName=$versionName" >> $GITHUB_OUTPUT
       - name: Release
