@@ -11,6 +11,7 @@ import android.telephony.SubscriptionInfo
 import android.util.Log
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.privileged.BrokerInstrumentation
+import io.github.vvb2060.ims.privileged.ConfigReader
 import io.github.vvb2060.ims.privileged.ImsModifier
 import io.github.vvb2060.ims.privileged.SimReader
 import kotlinx.coroutines.CompletableDeferred
@@ -70,6 +71,22 @@ class ShizukuProvider : ShizukuProvider() {
                     msg.contains("does not have android.permission.MODIFY_PHONE_STATE") ||
                     msg.contains("No permission to write to carrier config") ||
                     msg.contains("failed with empty result")
+        }
+
+        suspend fun readCarrierConfig(
+            context: Context,
+            subId: Int,
+            keys: Array<String>
+        ): Bundle? {
+            val args = Bundle()
+            args.putInt(ConfigReader.BUNDLE_SELECT_SIM_ID, subId)
+            args.putStringArray(ConfigReader.BUNDLE_KEYS, keys)
+            val result = startInstrumentation(context, ConfigReader::class.java, args, true)
+            if (result == null) {
+                Log.w(TAG, "readCarrierConfig: failed with empty result")
+                return null
+            }
+            return result.getBundle(ConfigReader.BUNDLE_RESULT)
         }
 
         suspend fun readSimInfoList(context: Context): List<SimSelection> {

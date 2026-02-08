@@ -12,6 +12,7 @@ import io.github.vvb2060.ims.BuildConfig
 import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.ShizukuProvider
 import io.github.vvb2060.ims.model.Feature
+import io.github.vvb2060.ims.model.FeatureConfigMapper
 import io.github.vvb2060.ims.model.FeatureValue
 import io.github.vvb2060.ims.model.FeatureValueType
 import io.github.vvb2060.ims.model.ShizukuStatus
@@ -228,6 +229,19 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
             }
         }
         return map
+    }
+
+    /**
+     * 通过 Shizuku 读取系统当前实际生效的 CarrierConfig。
+     * 返回详细的配置映射 Map。
+     */
+    suspend fun loadRealSystemConfig(subId: Int): Map<Feature, FeatureValue>? {
+        val bundle = ShizukuProvider.readCarrierConfig(
+            application,
+            subId,
+            FeatureConfigMapper.readKeys
+        ) ?: return null
+        return FeatureConfigMapper.fromBundle(bundle)
     }
 
     /**

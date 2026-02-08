@@ -48,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,6 +73,7 @@ import io.github.vvb2060.ims.model.ShizukuStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.model.SystemInfo
 import io.github.vvb2060.ims.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -111,6 +113,17 @@ class MainActivity : BaseActivity() {
                     featureSwitches.putAll(viewModel.loadDefaultPreferences())
                 }
             }
+        }
+
+        var showSystemConfigDialog by remember { mutableStateOf(false) }
+        var systemConfigData by remember { mutableStateOf<Map<Feature, FeatureValue>?>(null) }
+        val scope = rememberCoroutineScope()
+
+        if (showSystemConfigDialog && systemConfigData != null) {
+            SystemConfigDialog(
+                onDismissRequest = { showSystemConfigDialog = false },
+                configData = systemConfigData!!
+            )
         }
 
         Scaffold(
@@ -164,6 +177,23 @@ class MainActivity : BaseActivity() {
                             )
                         )
                     },
+                    onViewSystemConfigClick = {
+                        if (selectedSim != null) {
+                            scope.launch {
+                                val data = viewModel.loadRealSystemConfig(selectedSim!!.subId)
+                                if (data != null) {
+                                    systemConfigData = data
+                                    showSystemConfigDialog = true
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        R.string.load_system_config_error,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
                 )
                 SimCardSelectionCard(selectedSim, allSimList, onSelectSim = {
                     selectedSim = it
@@ -245,6 +275,8 @@ fun SystemInfoCard(
     onRefresh: () -> Unit,
     onRequestShizukuPermission: () -> Unit,
     onLogcatClick: () -> Unit,
+    onViewSystemConfigClick: () -> Unit = {}, // New callback
+    isShizukuReady: Boolean = false
 ) {
     val uriHandler = LocalUriHandler.current
 
@@ -254,6 +286,7 @@ fun SystemInfoCard(
             .padding(16.dp),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
+            // ... (existing header row code) ...
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     stringResource(id = R.string.system_info),
@@ -315,14 +348,28 @@ fun SystemInfoCard(
                 color = shizukuStatusColor
             )
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Action Buttons Row
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(onClick = onRefresh) {
                     Text(text = stringResource(id = R.string.refresh_permission))
                 }
+
                 if (shizukuStatus == ShizukuStatus.NO_PERMISSION) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = onRequestShizukuPermission) {
                         Text(text = stringResource(id = R.string.request_permission))
+                    }
+                }
+
+                // View System Config Button
+                if (shizukuStatus == ShizukuStatus.READY) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = onViewSystemConfigClick,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                    ) {
+                        Text(text = stringResource(id = R.string.view_system_config))
                     }
                 }
             }
@@ -623,6 +670,83 @@ fun ShizukuUpdateDialog(dismissDialog: () -> Unit) {
         text = { Text(stringResource(id = R.string.update_shizuku)) },
         confirmButton = {
             TextButton(onClick = dismissDialog) {
+                Text(stringResource(id = android.R.string.ok))
+            }
+        }
+    )
+}
+
+@Composable
+fun SystemConfigDialog(
+    onDismissRequest: () -> Unit,
+    configData: Map<Feature, FeatureValue>
+) {
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = { Text(stringResource(id = R.string.system_config_title)) },
+        text = {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                // 1. High-level Summary
+                Text(
+                    text = stringResource(id = R.string.system_config_summary_header),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Construct summary string
+                val summary = buildString {
+                    val volte = configData[Feature.VOLTE]?.data as? Boolean ?: false
+                    val vowifi = configData[Feature.VOWIFI]?.data as? Boolean ?: false
+                    val vonr = configData[Feature.VONR]?.data as? Boolean ?: false
+                    val nr = configData[Feature.FIVE_G_NR]?.data as? Boolean ?: false
+
+                    append("VoLTE: ${if (volte) "Enabled" else "Disabled"}\n")
+                    append("VoWiFi: ${if (vowifi) "Enabled" else "Disabled"}\n")
+                    append("VoNR: ${if (vonr) "Enabled" else "Disabled"}\n")
+                    append("5G NR: ${if (nr) "Enabled" else "Disabled"}")
+                }
+                Text(text = summary, fontSize = 14.sp)
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+                // 2. Detailed List
+                Text(
+                    text = stringResource(id = R.string.system_config_details_header),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                configData.forEach { (feature, value) ->
+                    val title = stringResource(feature.showTitleRes)
+                    val valueStr = when (value.valueType) {
+                        FeatureValueType.BOOLEAN -> (value.data as Boolean).toString()
+                        FeatureValueType.STRING -> value.data as String
+                    }
+
+                    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                        Text(
+                            text = title,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 13.sp
+                        )
+                        Text(
+                            text = valueStr,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismissRequest) {
                 Text(stringResource(id = android.R.string.ok))
             }
         }

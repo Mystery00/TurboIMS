@@ -17,6 +17,11 @@
     <string name="shizuku_checking">检查中…</string>
     <string name="refresh_permission">刷新</string>
     <string name="request_permission">请求</string>
+    <string name="view_system_config">查看系统配置</string>
+    <string name="system_config_title">系统配置详情</string>
+    <string name="system_config_summary_header">状态概览</string>
+    <string name="system_config_details_header">详细配置项</string>
+    <string name="load_system_config_error">加载系统配置失败</string>
 
     <!-- SIM Card -->
     <string name="sim_card">本次应用的 SIM 卡</string>

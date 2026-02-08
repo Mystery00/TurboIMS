@@ -53,4 +53,8 @@
         android:name=".privileged.BrokerInstrumentation"
         android:label="BrokerInstrumentation"
         android:targetPackage="${applicationId}" />
+    <instrumentation
+        android:name=".privileged.ConfigReader"
+        android:label="ConfigReader"
+        android:targetPackage="${applicationId}" />
 </manifest>
