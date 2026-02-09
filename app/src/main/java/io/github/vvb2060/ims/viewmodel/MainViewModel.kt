@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
@@ -235,7 +236,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      * 通过 Shizuku 读取系统当前实际生效的 CarrierConfig 和 IMS 注册状态。
      * 返回详细的配置映射 Map 和 IMS 注册状态 (Boolean?)。
      */
-    suspend fun loadRealSystemConfig(subId: Int): Pair<Map<Feature, FeatureValue>, Boolean?>? {
+    suspend fun loadRealSystemConfig(subId: Int): Pair<Bundle, Boolean?>? {
         val bundle = ShizukuProvider.readCarrierConfig(
             application,
             subId,
@@ -244,7 +245,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
 
         val imsStatus = ShizukuProvider.readImsRegistrationStatus(application, subId)
 
-        return Pair(FeatureConfigMapper.fromBundle(bundle), imsStatus)
+        return Pair(bundle, imsStatus)
     }
 
     /**

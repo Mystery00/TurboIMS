@@ -1,6 +1,7 @@
 package io.github.vvb2060.ims.ui
 
 import android.content.Intent
+import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
@@ -67,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.model.Feature
+import io.github.vvb2060.ims.model.FeatureConfigMapper
 import io.github.vvb2060.ims.model.FeatureValue
 import io.github.vvb2060.ims.model.FeatureValueType
 import io.github.vvb2060.ims.model.ShizukuStatus
@@ -116,9 +118,9 @@ class MainActivity : BaseActivity() {
         }
 
         var showSystemConfigDialog by remember { mutableStateOf(false) }
-        // Pair<ConfigMap, IsImsRegistered?>
+        // Pair<ConfigBundle, IsImsRegistered?>
         var systemConfigData by remember {
-            mutableStateOf<Pair<Map<Feature, FeatureValue>, Boolean?>?>(
+            mutableStateOf<Pair<Bundle, Boolean?>?>(
                 null
             )
         }
@@ -198,7 +200,8 @@ class MainActivity : BaseActivity() {
                                 }
                             }
                         }
-                    }
+                    },
+                    selectedSim = selectedSim
                 )
                 SimCardSelectionCard(selectedSim, allSimList, onSelectSim = {
                     selectedSim = it
@@ -281,7 +284,8 @@ fun SystemInfoCard(
     onRequestShizukuPermission: () -> Unit,
     onLogcatClick: () -> Unit,
     onViewSystemConfigClick: () -> Unit = {}, // New callback
-    isShizukuReady: Boolean = false
+    isShizukuReady: Boolean = false,
+    selectedSim: SimSelection? = null
 ) {
     val uriHandler = LocalUriHandler.current
 
@@ -368,7 +372,7 @@ fun SystemInfoCard(
                 }
 
                 // View System Config Button
-                if (shizukuStatus == ShizukuStatus.READY) {
+                if (shizukuStatus == ShizukuStatus.READY && selectedSim?.subId != -1) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = onViewSystemConfigClick,
@@ -684,10 +688,15 @@ fun ShizukuUpdateDialog(dismissDialog: () -> Unit) {
 @Composable
 fun SystemConfigDialog(
     onDismissRequest: () -> Unit,
-    // Pair<ConfigMap, IsImsRegistered?>
-    configData: Pair<Map<Feature, FeatureValue>, Boolean?>
+    // Pair<ConfigBundle, IsImsRegistered?>
+    configData: Pair<Bundle, Boolean?>
 ) {
-    val (features, isImsRegistered) = configData
+    val (bundle, isImsRegistered) = configData
+    // Use mapper to generate summary easily
+    val mappedFeatures = remember(bundle) { FeatureConfigMapper.fromBundle(bundle) }
+    // Extract raw keys for detailed list
+    val rawKeys = remember(bundle) { bundle.keySet().sorted() }
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(stringResource(id = R.string.system_config_title)) },
@@ -717,23 +726,23 @@ fun SystemConfigDialog(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Construct summary string
+                // Construct summary string using mapped features for convenience
                 val summary = buildString {
-                    val volte = features[Feature.VOLTE]?.data as? Boolean ?: false
-                    val vowifi = features[Feature.VOWIFI]?.data as? Boolean ?: false
-                    val vonr = features[Feature.VONR]?.data as? Boolean ?: false
-                    val nr = features[Feature.FIVE_G_NR]?.data as? Boolean ?: false
+                    val volte = mappedFeatures[Feature.VOLTE]?.data as? Boolean ?: false
+                    val vowifi = mappedFeatures[Feature.VOWIFI]?.data as? Boolean ?: false
+                    val vonr = mappedFeatures[Feature.VONR]?.data as? Boolean ?: false
+                    val nr = mappedFeatures[Feature.FIVE_G_NR]?.data as? Boolean ?: false
 
-                    append("VoLTE: ${if (volte) "Enabled" else "Disabled"}\n")
-                    append("VoWiFi: ${if (vowifi) "Enabled" else "Disabled"}\n")
-                    append("VoNR: ${if (vonr) "Enabled" else "Disabled"}\n")
-                    append("5G NR: ${if (nr) "Enabled" else "Disabled"}")
-                }
+                    appendLine("VoLTE: ${if (volte) "Enabled" else "Disabled"}")
+                    appendLine("VoWiFi: ${if (vowifi) "Enabled" else "Disabled"}")
+                    appendLine("VoNR: ${if (vonr) "Enabled" else "Disabled"}")
+                    appendLine("5G NR: ${if (nr) "Enabled" else "Disabled"}")
+                }.trim()
                 Text(text = summary, fontSize = 14.sp)
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
 
-                // 2. Detailed List
+                // 2. Detailed List (Raw Data)
                 Text(
                     text = stringResource(id = R.string.system_config_details_header),
                     fontWeight = FontWeight.Bold,
@@ -742,18 +751,22 @@ fun SystemConfigDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                features.forEach { (feature, value) ->
-                    val title = stringResource(feature.showTitleRes)
-                    val valueStr = when (value.valueType) {
-                        FeatureValueType.BOOLEAN -> (value.data as Boolean).toString()
-                        FeatureValueType.STRING -> value.data as String
+                rawKeys.forEach { key ->
+                    val value = bundle.get(key)
+                    val valueStr = when (value) {
+                        is Boolean -> value.toString()
+                        is String -> value
+                        is IntArray -> value.contentToString()
+                        is Array<*> -> value.contentToString()
+                        else -> value.toString()
                     }
 
                     Column(modifier = Modifier.padding(vertical = 4.dp)) {
                         Text(
-                            text = title,
+                            text = key,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp
+                            fontSize = 13.sp,
+                            lineHeight = 16.sp
                         )
                         Text(
                             text = valueStr,
