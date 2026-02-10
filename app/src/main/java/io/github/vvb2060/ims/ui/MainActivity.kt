@@ -372,10 +372,11 @@ fun SystemInfoCard(
                 }
 
                 // View System Config Button
-                if (shizukuStatus == ShizukuStatus.READY && selectedSim?.subId != -1) {
+                if (shizukuStatus == ShizukuStatus.READY) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = onViewSystemConfigClick,
+                        enabled = selectedSim?.subId != -1,
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                     ) {
                         Text(text = stringResource(id = R.string.view_system_config))
@@ -717,11 +718,22 @@ fun SystemConfigDialog(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "IMS Status: ", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                     if (isImsRegistered == null) {
-                        Text(text = "Unknown", fontSize = 14.sp)
+                        Text(
+                            text = stringResource(id = R.string.ims_status_unknown),
+                            fontSize = 14.sp
+                        )
                     } else if (isImsRegistered) {
-                        Text(text = "✅ Registered", fontSize = 14.sp, color = Color(0xFF4CAF50))
+                        Text(
+                            text = "✅ ${stringResource(id = R.string.ims_status_registered)}",
+                            fontSize = 14.sp,
+                            color = Color(0xFF4CAF50)
+                        )
                     } else {
-                        Text(text = "❌ Not Registered", fontSize = 14.sp, color = Color.Red)
+                        Text(
+                            text = "❌ ${stringResource(id = R.string.ims_status_not_registered)}",
+                            fontSize = 14.sp,
+                            color = Color.Red
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -733,10 +745,13 @@ fun SystemConfigDialog(
                     val vonr = mappedFeatures[Feature.VONR]?.data as? Boolean ?: false
                     val nr = mappedFeatures[Feature.FIVE_G_NR]?.data as? Boolean ?: false
 
-                    appendLine("VoLTE: ${if (volte) "Enabled" else "Disabled"}")
-                    appendLine("VoWiFi: ${if (vowifi) "Enabled" else "Disabled"}")
-                    appendLine("VoNR: ${if (vonr) "Enabled" else "Disabled"}")
-                    appendLine("5G NR: ${if (nr) "Enabled" else "Disabled"}")
+                    val enabledStr = stringResource(id = R.string.status_enabled)
+                    val disabledStr = stringResource(id = R.string.status_disabled)
+
+                    append("VoLTE: ${if (volte) enabledStr else disabledStr}\n")
+                    append("VoWiFi: ${if (vowifi) enabledStr else disabledStr}\n")
+                    append("VoNR: ${if (vonr) enabledStr else disabledStr}\n")
+                    append("5G NR: ${if (nr) enabledStr else disabledStr}")
                 }.trim()
                 Text(text = summary, fontSize = 14.sp)
 
