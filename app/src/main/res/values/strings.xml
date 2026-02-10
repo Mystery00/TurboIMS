@@ -15,9 +15,9 @@
     <string name="shizuku_not_running">❌ Not Running</string>
     <string name="shizuku_no_permission">⚠️ No Permission</string>
     <string name="shizuku_checking">Checking…</string>
-    <string name="refresh_permission">Refresh</string>
+    <string name="refresh_permission">Refresh Shizuku</string>
     <string name="request_permission">Request</string>
-    <string name="view_system_config">View System Config</string>
+    <string name="view_system_config">View IMS Config</string>
     <string name="system_config_title">System Configuration</string>
     <string name="system_config_summary_header">Status Summary</string>
     <string name="system_config_details_header">Detailed Configuration</string>

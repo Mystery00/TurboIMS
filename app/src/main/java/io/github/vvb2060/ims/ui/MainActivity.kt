@@ -351,15 +351,13 @@ fun SystemInfoCard(
                 else -> Color(0xFF4CAF50)
             }
 
-            Text(
-                stringResource(R.string.shizuku_status, shizukuStatusText),
-                fontSize = 14.sp,
-                color = shizukuStatusColor
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Action Buttons Row
             Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.shizuku_status, shizukuStatusText),
+                    fontSize = 14.sp,
+                    color = shizukuStatusColor
+                )
+                Spacer(modifier = Modifier.weight(1f))
                 Button(onClick = onRefresh) {
                     Text(text = stringResource(id = R.string.refresh_permission))
                 }
@@ -370,17 +368,18 @@ fun SystemInfoCard(
                         Text(text = stringResource(id = R.string.request_permission))
                     }
                 }
+            }
 
-                // View System Config Button
-                if (shizukuStatus == ShizukuStatus.READY) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = onViewSystemConfigClick,
-                        enabled = selectedSim?.subId != -1,
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
-                    ) {
-                        Text(text = stringResource(id = R.string.view_system_config))
-                    }
+            // View System Config Button
+            if (shizukuStatus == ShizukuStatus.READY) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = onViewSystemConfigClick,
+                    enabled = selectedSim?.subId != -1,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                ) {
+                    Text(text = stringResource(id = R.string.view_system_config))
                 }
             }
 
