@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.SettingsBackupRestore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.HorizontalDivider
@@ -373,16 +374,24 @@ fun SystemInfoCard(
                     fontSize = 14.sp,
                     color = shizukuStatusColor
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = onRefresh) {
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Button(
+                    shape = ButtonGroupDefaults.connectedLeadingButtonShape,
+                    onClick = onRefresh,
+                ) {
                     Text(text = stringResource(id = R.string.refresh_permission))
                 }
-
-                if (shizukuStatus == ShizukuStatus.NO_PERMISSION) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(onClick = onRequestShizukuPermission) {
-                        Text(text = stringResource(id = R.string.request_permission))
-                    }
+                Button(
+                    enabled = shizukuStatus == ShizukuStatus.NO_PERMISSION,
+                    shape = ButtonGroupDefaults.connectedTrailingButtonShape,
+                    onClick = onRequestShizukuPermission,
+                ) {
+                    Text(text = stringResource(id = R.string.request_permission))
                 }
             }
 
@@ -391,13 +400,14 @@ fun SystemInfoCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Button(
                         onClick = onViewSystemConfigClick,
                         enabled = selectedSim?.subId != -1,
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                        shape = ButtonGroupDefaults.connectedLeadingButtonShape,
                     ) {
                         Text(text = stringResource(id = R.string.view_system_config))
                     }
@@ -406,7 +416,8 @@ fun SystemInfoCard(
                         onClick = onResetIms,
                         enabled = selectedSim?.subId != -1,
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        shape = ButtonGroupDefaults.connectedTrailingButtonShape,
                     ) {
                         Text(text = stringResource(id = R.string.restart_ims))
                     }

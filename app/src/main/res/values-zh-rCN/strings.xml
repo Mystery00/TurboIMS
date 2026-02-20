@@ -15,9 +15,9 @@
     <string name="shizuku_not_running">❌ 未运行</string>
     <string name="shizuku_no_permission">⚠️ 未授权</string>
     <string name="shizuku_checking">检查中…</string>
-    <string name="refresh_permission">刷新 Shizuku</string>
-    <string name="request_permission">请求</string>
-    <string name="view_system_config">查看 IMS 配置</string>
+    <string name="refresh_permission">刷新权限</string>
+    <string name="request_permission">请求权限</string>
+    <string name="view_system_config">查看 IMS</string>
     <string name="restart_ims">重启 IMS</string>
     <string name="restart_ims_success">IMS 已重启</string>
     <string name="restart_ims_failed">IMS 重启失败：%s</string>
