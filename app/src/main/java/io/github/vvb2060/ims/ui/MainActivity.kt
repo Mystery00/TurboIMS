@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -201,6 +202,9 @@ class MainActivity : BaseActivity() {
                             }
                         }
                     },
+                    onResetIms = {
+                        selectedSim?.let { viewModel.onResetIms(it) }
+                    },
                     selectedSim = selectedSim
                 )
                 SimCardSelectionCard(selectedSim, allSimList, onSelectSim = {
@@ -220,16 +224,28 @@ class MainActivity : BaseActivity() {
                         val savedConfig = selectedSim?.let { viewModel.loadConfiguration(it.subId) }
                         if (savedConfig != null) {
                             featureSwitches.putAll(savedConfig)
-                            Toast.makeText(context, R.string.load_config_history_success, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                R.string.load_config_history_success,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         } else {
                             featureSwitches.putAll(viewModel.loadDefaultPreferences())
-                            Toast.makeText(context, R.string.load_config_default_success, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                context,
+                                R.string.load_config_default_success,
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     },
                     resetFeatures = {
                         featureSwitches.clear()
                         featureSwitches.putAll(viewModel.loadDefaultPreferences())
-                        Toast.makeText(context, R.string.load_config_default_success, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            R.string.load_config_default_success,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 )
                 ApplyButton(selectedSim != null) {
@@ -283,8 +299,8 @@ fun SystemInfoCard(
     onRefresh: () -> Unit,
     onRequestShizukuPermission: () -> Unit,
     onLogcatClick: () -> Unit,
-    onViewSystemConfigClick: () -> Unit = {}, // New callback
-    isShizukuReady: Boolean = false,
+    onViewSystemConfigClick: () -> Unit = {},
+    onResetIms: () -> Unit = {},
     selectedSim: SimSelection? = null
 ) {
     val uriHandler = LocalUriHandler.current
@@ -370,16 +386,30 @@ fun SystemInfoCard(
                 }
             }
 
-            // View System Config Button
+            // View System Config & Restart IMS Buttons
             if (shizukuStatus == ShizukuStatus.READY) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = onViewSystemConfigClick,
-                    enabled = selectedSim?.subId != -1,
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(text = stringResource(id = R.string.view_system_config))
+                    Button(
+                        onClick = onViewSystemConfigClick,
+                        enabled = selectedSim?.subId != -1,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                    ) {
+                        Text(text = stringResource(id = R.string.view_system_config))
+                    }
+
+                    Button(
+                        onClick = onResetIms,
+                        enabled = selectedSim?.subId != -1,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text(text = stringResource(id = R.string.restart_ims))
+                    }
                 }
             }
 

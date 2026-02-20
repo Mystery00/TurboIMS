@@ -61,4 +61,8 @@
         android:name=".privileged.ImsStatusReader"
         android:label="ImsStatusReader"
         android:targetPackage="${applicationId}" />
+    <instrumentation
+        android:name=".privileged.ImsResetter"
+        android:label="ImsResetter"
+        android:targetPackage="${applicationId}" />
 </manifest>

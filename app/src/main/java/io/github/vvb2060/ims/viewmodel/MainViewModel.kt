@@ -264,6 +264,22 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
         }
     }
 
+    fun onResetIms(simSelection: SimSelection) {
+        viewModelScope.launch {
+            val app = getApplication<Application>()
+            try {
+                val error = ShizukuProvider.resetIms(app, simSelection.subId)
+                if (error == null) {
+                    toast(app.getString(R.string.restart_ims_success))
+                } else {
+                    toast(app.getString(R.string.restart_ims_failed, error), false)
+                }
+            } catch (e: Exception) {
+                toast(app.getString(R.string.restart_ims_failed, e.localizedMessage), false)
+            }
+        }
+    }
+
     private fun toast(msg: String, short: Boolean = true) {
         toast?.cancel()
         toast =

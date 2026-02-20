@@ -18,6 +18,9 @@
     <string name="refresh_permission">Refresh Shizuku</string>
     <string name="request_permission">Request</string>
     <string name="view_system_config">View IMS Config</string>
+    <string name="restart_ims">Restart IMS</string>
+    <string name="restart_ims_success">IMS restarted</string>
+    <string name="restart_ims_failed">IMS restart failed: %s</string>
     <string name="system_config_title">System Configuration</string>
     <string name="system_config_summary_header">Status Summary</string>
     <string name="system_config_details_header">Detailed Configuration</string>

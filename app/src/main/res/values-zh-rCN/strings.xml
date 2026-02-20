@@ -18,6 +18,9 @@
     <string name="refresh_permission">刷新 Shizuku</string>
     <string name="request_permission">请求</string>
     <string name="view_system_config">查看 IMS 配置</string>
+    <string name="restart_ims">重启 IMS</string>
+    <string name="restart_ims_success">IMS 已重启</string>
+    <string name="restart_ims_failed">IMS 重启失败：%s</string>
     <string name="system_config_title">系统配置详情</string>
     <string name="system_config_summary_header">状态概览</string>
     <string name="system_config_details_header">详细配置</string>

@@ -7,6 +7,10 @@ public final class TelephonyServiceManager {
         }
     }
 
+    public ServiceRegisterer getTelephonyServiceRegisterer() {
+        return null;
+    }
+
     public ServiceRegisterer getSubscriptionServiceRegisterer() {
         return null;
     }

@@ -13,6 +13,7 @@ import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.privileged.BrokerInstrumentation
 import io.github.vvb2060.ims.privileged.ConfigReader
 import io.github.vvb2060.ims.privileged.ImsModifier
+import io.github.vvb2060.ims.privileged.ImsResetter
 import io.github.vvb2060.ims.privileged.ImsStatusReader
 import io.github.vvb2060.ims.privileged.SimReader
 import kotlinx.coroutines.CompletableDeferred
@@ -98,6 +99,15 @@ class ShizukuProvider : ShizukuProvider() {
             if (result == null) return null
             if (result.getString(ImsStatusReader.BUNDLE_RESULT_MSG) != null) return null
             return result.getBoolean(ImsStatusReader.BUNDLE_RESULT)
+        }
+
+        suspend fun resetIms(context: Context, subId: Int): String? {
+            val args = Bundle().apply {
+                putInt(ImsResetter.BUNDLE_SELECT_SIM_ID, subId)
+            }
+            val result = startInstrumentation(context, ImsResetter::class.java, args, true)
+            if (result == null) return "Unknown error"
+            return result.getString(ImsResetter.BUNDLE_RESULT_MSG)
         }
 
         suspend fun readSimInfoList(context: Context): List<SimSelection> {
