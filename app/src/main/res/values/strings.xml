@@ -38,8 +38,6 @@
     <string name="features_config">Features for this apply</string>
     <string name="carrier_name">Carrier Name</string>
     <string name="carrier_name_desc">Customize carrier name</string>
-    <string name="country_iso">Country ISO</string>
-    <string name="country_iso_desc">Customize country ISO code</string>
     <string name="ims_user_agent">IMS User Agent</string>
     <string name="ims_user_agent_desc">Customize IMS User Agent string</string>
     <string name="volte">VoLTE (4G Voice)</string>
@@ -66,6 +64,8 @@
     <string name="reset_config">Reset</string>
 
     <!-- Tips -->
+    <string name="tip_country_iso_prefix">• Country ISO customization has been removed. For this feature, see </string>
+    <string name="tip_country_iso_app_name">carrier-ims-for-pixel</string>
     <string name="tip">Tips:</string>
     <string-array name="tips">
         <item>!• The feature list switch is only used to show the content to be modified in this operation, and does not indicate the current status of related system functions.</item>

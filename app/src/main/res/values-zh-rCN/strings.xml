@@ -38,8 +38,6 @@
     <string name="features_config">本次应用功能列表</string>
     <string name="carrier_name">运营商名称</string>
     <string name="carrier_name_desc">自定义运营商显示的名称，为空则不修改</string>
-    <string name="country_iso">运营商国家码</string>
-    <string name="country_iso_desc">自定义运营商国家码，为空则不修改</string>
     <string name="ims_user_agent">IMS User Agent</string>
     <string name="ims_user_agent_desc">自定义 IMS User Agent 字符串，为空则不修改</string>
     <string name="volte">VoLTE（4G 语音）</string>
@@ -66,6 +64,8 @@
     <string name="reset_config">重置配置</string>
 
     <!-- Tips -->
+    <string name="tip_country_iso_prefix">• 运营商国家码自定义功能已移除，如需使用请参考 </string>
+    <string name="tip_country_iso_app_name">carrier-ims-for-pixel</string>
     <string name="tip">提示：</string>
     <string-array name="tips">
         <item>!• 功能列表开关仅用于展示本次操作需要修改的内容，并不表示当前系统相关功能的开启情况</item>

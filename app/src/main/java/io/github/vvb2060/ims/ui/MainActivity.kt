@@ -61,9 +61,15 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -703,6 +709,23 @@ fun Tips() {
                 fontWeight = if (text.startsWith("!")) FontWeight.Bold else null
             )
         }
+        val annotatedString = buildAnnotatedString {
+            append(stringResource(R.string.tip_country_iso_prefix))
+            withLink(
+                LinkAnnotation.Url(
+                    url = "https://github.com/ryfineZ/carrier-ims-for-pixel",
+                    styles = TextLinkStyles(
+                        style = SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
+                    )
+                )
+            ) {
+                append(stringResource(R.string.tip_country_iso_app_name))
+            }
+        }
+        Text(text = annotatedString, fontSize = 12.sp, color = MaterialTheme.colorScheme.outline)
     }
 }
 
