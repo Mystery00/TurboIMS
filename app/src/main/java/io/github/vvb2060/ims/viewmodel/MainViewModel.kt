@@ -232,8 +232,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
     }
 
     /**
-     * 通过 Shizuku 读取系统当前实际生效的 CarrierConfig 和 IMS 注册状态。
-     * 返回详细的配置映射 Map 和 IMS 注册状态 (Boolean?)。
+     * 通过 Shizuku 读取系统当前实时 IMS 能力状态。
      */
     suspend fun loadRealSystemConfig(subId: Int): ImsCapabilityStatus? {
         return ShizukuProvider.readImsCapabilities(application, subId)

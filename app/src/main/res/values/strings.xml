@@ -22,13 +22,8 @@
     <string name="restart_ims_success">IMS restarted</string>
     <string name="restart_ims_failed">IMS restart failed: %s</string>
     <string name="system_config_title">System Configuration</string>
-    <string name="system_config_summary_header">Status Summary</string>
-    <string name="system_config_details_header">Detailed Configuration</string>
     <string name="ims_status_registered">Registered</string>
     <string name="ims_status_not_registered">Not Registered</string>
-    <string name="ims_status_unknown">Unknown</string>
-    <string name="status_enabled">Enabled</string>
-    <string name="status_disabled">Disabled</string>
     <string name="load_system_config_error">Failed to load system config</string>
     <string name="status_available">✅ Available</string>
     <string name="status_unavailable">❌ Unavailable</string>
