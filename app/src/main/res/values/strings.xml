@@ -30,6 +30,10 @@
     <string name="status_enabled">Enabled</string>
     <string name="status_disabled">Disabled</string>
     <string name="load_system_config_error">Failed to load system config</string>
+    <string name="status_available">✅ Available</string>
+    <string name="status_unavailable">❌ Unavailable</string>
+    <string name="ims_cap_nr_nsa">NR NSA</string>
+    <string name="ims_cap_nr_sa">NR SA</string>
 
     <!-- SIM Card -->
     <string name="sim_card">SIM Card for this apply</string>

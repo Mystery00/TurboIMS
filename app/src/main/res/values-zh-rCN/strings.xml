@@ -30,6 +30,10 @@
     <string name="status_enabled">已启用</string>
     <string name="status_disabled">已禁用</string>
     <string name="load_system_config_error">加载系统配置失败</string>
+    <string name="status_available">✅ 可用</string>
+    <string name="status_unavailable">❌ 不可用</string>
+    <string name="ims_cap_nr_nsa">NR NSA</string>
+    <string name="ims_cap_nr_sa">NR SA</string>
 
     <!-- SIM Card -->
     <string name="sim_card">本次应用的 SIM 卡</string>
