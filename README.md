@@ -35,7 +35,6 @@ TurboIMS is a tool that allows you to enable or disable IMS features like Voice 
 - **Sim Card Selection**: Apply settings to a specific SIM card or all SIM cards at once.
 - **Customizable IMS Features**:
     - **Carrier Name**: Override the carrier name displayed on your device.
-  - **Country ISO**: Force modify operator country code (Requires Android 14+).
   - **IMS User Agent**: Override the IMS User Agent string.
     - **VoLTE (Voice over LTE)**: Enable high-definition voice calls over 4G.
     - **VoWiFi (Wi-Fi Calling)**: Make calls over Wi-Fi networks, with options for Wi-Fi only mode.
@@ -46,6 +45,8 @@ TurboIMS is a tool that allows you to enable or disable IMS features like Voice 
     - **5G NR**: Enable 5G NSA (Non-Standalone) and SA (Standalone) networks.
     - **5G Signal Strength Thresholds**: Option to apply custom 5G signal strength thresholds.
 - **Configuration Persistence**: Automatically saves configuration per SIM card.
+
+> **Note:** Country ISO customization has been removed from TurboIMS. If you need this feature, please use [carrier-ims-for-pixel](https://github.com/ryfineZ/carrier-ims-for-pixel).
 
 ## Requirements
 
