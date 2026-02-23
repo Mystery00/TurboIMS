@@ -109,7 +109,7 @@ class MainActivity : BaseActivity() {
         }
         LaunchedEffect(allSimList) {
             if (selectedSim == null) {
-                selectedSim = allSimList.firstOrNull()
+                selectedSim = allSimList.firstOrNull { it.subId != -1 } ?: allSimList.firstOrNull()
             }
         }
         LaunchedEffect(selectedSim) {
