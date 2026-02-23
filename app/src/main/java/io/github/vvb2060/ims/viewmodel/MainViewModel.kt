@@ -147,8 +147,6 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
             // 构建传递给底层 ImsModifier 的配置 Bundle
             val carrierName =
                 if (selectedSim.subId == -1) null else map[Feature.CARRIER_NAME]?.data as String?
-            val countryISO =
-                if (selectedSim.subId == -1) null else map[Feature.COUNTRY_ISO]?.data as String?
             val imsUserAgent =
                 if (selectedSim.subId == -1) null else map[Feature.IMS_USER_AGENT]?.data as String?
             val enableVoLTE = (map[Feature.VOLTE]?.data ?: true) as Boolean
@@ -163,7 +161,6 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
 
             val bundle = ImsModifier.buildBundle(
                 carrierName,
-                countryISO,
                 imsUserAgent,
                 enableVoLTE,
                 enableVoWiFi,

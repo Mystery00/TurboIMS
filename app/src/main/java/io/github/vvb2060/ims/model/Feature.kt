@@ -15,12 +15,6 @@ enum class Feature(
         R.string.carrier_name_desc,
         "",
     ),
-    COUNTRY_ISO(
-        FeatureValueType.STRING,
-        R.string.country_iso,
-        R.string.country_iso_desc,
-        "",
-    ),
     IMS_USER_AGENT(
         FeatureValueType.STRING,
         R.string.ims_user_agent,

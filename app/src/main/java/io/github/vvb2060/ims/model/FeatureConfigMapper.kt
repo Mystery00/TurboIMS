@@ -24,7 +24,6 @@ object FeatureConfigMapper {
         CarrierConfigManager.KEY_VONR_ENABLED_BOOL,
         CarrierConfigManager.KEY_VONR_SETTING_VISIBILITY_BOOL,
         CarrierConfigManager.Ims.KEY_IMS_USER_AGENT_STRING,
-        CarrierConfigManager.KEY_SIM_COUNTRY_ISO_OVERRIDE_STRING,
     ).toTypedArray()
 
     fun fromBundle(bundle: Bundle): Map<Feature, FeatureValue> {
@@ -40,13 +39,6 @@ object FeatureConfigMapper {
             ""
         }
         map[Feature.CARRIER_NAME] = FeatureValue(carrierName, FeatureValueType.STRING)
-
-        val countryIso = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            bundle.getStringOrDefault(CarrierConfigManager.KEY_SIM_COUNTRY_ISO_OVERRIDE_STRING, "")
-        } else {
-            ""
-        }
-        map[Feature.COUNTRY_ISO] = FeatureValue(countryIso, FeatureValueType.STRING)
 
         val imsUserAgent = bundle.getStringOrDefault(
             CarrierConfigManager.Ims.KEY_IMS_USER_AGENT_STRING,
