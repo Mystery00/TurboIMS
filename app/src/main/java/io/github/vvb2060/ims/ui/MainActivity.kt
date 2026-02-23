@@ -455,11 +455,14 @@ fun SimCardSelectionCard(
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(modifier = Modifier.weight(1F))
-                IconButton(onClick = onRefreshSimList) {
+                TextButton(onClick = onRefreshSimList) {
                     Icon(
                         imageVector = Icons.Rounded.Cached,
-                        contentDescription = "Refresh"
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(stringResource(R.string.refresh))
                 }
             }
             Column {
