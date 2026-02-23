@@ -1,20 +1,17 @@
-### 新增
-
-- 新增 IMS 注册状态实时查询功能（使用 `ImsMmTelManager` 读取实际能力状态）
-- 新增重置 IMS 功能（`ImsResetter`） （该功能合并自[carrier-ims-for-pixel](https://github.com/ryfineZ/carrier-ims-for-pixel)）
-- 引入 `BrokerInstrumentation` 以增强 IMS 配置覆盖能力 （该功能合并自[carrier-ims-for-pixel](https://github.com/ryfineZ/carrier-ims-for-pixel)）
-- 新增 `ImsCapabilityStatus` 数据类及相关多语言文案
-
 ### 优化
 
-- 合并配置按钮，优化主界面布局与交互
-- 默认选中卡1，无 SIM 卡时自动回退到全部 SIM 视图
-- 优化 Shizuku 状态卡片布局
-- 升级依赖库版本
+- **查看 IMS** 对话框全面升级：
+  - 标题栏下方显示当前查询的 SIM 卡名称，避免多卡场景混淆
+  - 新增「IMS 注册技术」行，实时展示当前注册所用接入技术（LTE / NR / WiFi）
+  - 新增「刷新」按钮，可在不关闭对话框的情况下重新查询 IMS 状态；刷新中显示加载指示器防止重复触发
+  - 底部增加瞬时数据说明，提示用户数据随 LTE 与 5G 网络切换而变化
+- 「查看 IMS」与「重启 IMS」按钮从系统信息卡片移至 SIM 卡列表卡片，操作位置更贴近 SIM 选择
+- SIM 卡列表卡片标题由「本次应用的 SIM 卡」更名为「SIM 卡列表」
+- SIM 卡列表刷新按钮改为图标 + 文字样式，与其他操作按钮风格统一
 
 ### 移除
 
-- **移除运营商国家码（SIM_COUNTRY_ISO_OVERRIDE_STRING）自定义功能**
+- **移除运营商国家码自定义功能**
 
   该功能已从本应用中移除。如需自定义运营商国家码，以及网络叹号屏蔽、TikTok 相关修复等更多定制功能，请使用：
 
