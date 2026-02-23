@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
@@ -37,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -126,12 +128,33 @@ class MainActivity : BaseActivity() {
 
         var showSystemConfigDialog by remember { mutableStateOf(false) }
         var systemConfigData by remember { mutableStateOf<ImsCapabilityStatus?>(null) }
+        var isRefreshingSystemConfig by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
 
         if (showSystemConfigDialog && systemConfigData != null) {
             SystemConfigDialog(
                 onDismissRequest = { showSystemConfigDialog = false },
-                status = systemConfigData!!
+                status = systemConfigData!!,
+                simName = selectedSim?.showTitle ?: "",
+                isRefreshing = isRefreshingSystemConfig,
+                onRefresh = {
+                    scope.launch {
+                        if (selectedSim != null) {
+                            isRefreshingSystemConfig = true
+                            val data = viewModel.loadRealSystemConfig(selectedSim!!.subId)
+                            if (data != null) {
+                                systemConfigData = data
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    R.string.load_system_config_error,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            isRefreshingSystemConfig = false
+                        }
+                    }
+                }
             )
         }
 
@@ -751,11 +774,42 @@ fun ShizukuUpdateDialog(dismissDialog: () -> Unit) {
 @Composable
 fun SystemConfigDialog(
     onDismissRequest: () -> Unit,
-    status: ImsCapabilityStatus
+    status: ImsCapabilityStatus,
+    simName: String = "",
+    isRefreshing: Boolean = false,
+    onRefresh: () -> Unit = {},
 ) {
+    // 推导当前 IMS 注册技术：优先从语音能力判断，其次从网络状态推断
+    val regTechUnknown = stringResource(R.string.ims_reg_tech_unknown)
+    val regTechDisplay = remember(status) {
+        val techs = buildList {
+            if (status.isVoWifiAvailable) add("WiFi")
+            if (status.isVoNrAvailable) add("NR")
+            if (status.isVolteAvailable) add("LTE")
+        }
+        when {
+            techs.isNotEmpty() -> techs.joinToString(" / ")
+            status.isRegistered && status.isNrSaAvailable -> "NR SA"
+            status.isRegistered && status.isNrNsaAvailable -> "NR NSA"
+            status.isRegistered -> regTechUnknown
+            else -> "—"
+        }
+    }
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
-        title = { Text(stringResource(id = R.string.system_config_title)) },
+        title = {
+            Column {
+                Text(stringResource(id = R.string.system_config_title))
+                if (simName.isNotBlank()) {
+                    Text(
+                        text = simName,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                }
+            }
+        },
         text = {
             Column {
                 ImsStatusRow(
@@ -764,6 +818,24 @@ fun SystemConfigDialog(
                     availableText = stringResource(R.string.ims_status_registered),
                     unavailableText = stringResource(R.string.ims_status_not_registered)
                 )
+                // IMS 注册技术（文本行，非布尔）
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "${stringResource(R.string.ims_reg_tech)}: ",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        text = regTechDisplay,
+                        fontSize = 14.sp,
+                    )
+                }
                 ImsStatusRow(label = "VoLTE", isAvailable = status.isVolteAvailable)
                 ImsStatusRow(label = "VoWiFi", isAvailable = status.isVoWifiAvailable)
                 ImsStatusRow(label = "VoNR", isAvailable = status.isVoNrAvailable)
@@ -779,13 +851,37 @@ fun SystemConfigDialog(
                     label = stringResource(R.string.ims_cap_nr_sa),
                     isAvailable = status.isNrSaAvailable
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.ims_data_snapshot_note),
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.outline,
+                )
             }
         },
         confirmButton = {
             TextButton(onClick = onDismissRequest) {
                 Text(stringResource(id = android.R.string.ok))
             }
-        }
+        },
+        dismissButton = {
+            if (isRefreshing) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 2.dp,
+                )
+            } else {
+                TextButton(onClick = onRefresh) {
+                    Icon(
+                        imageVector = Icons.Rounded.Cached,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(stringResource(R.string.refresh))
+                }
+            }
+        },
     )
 }
 

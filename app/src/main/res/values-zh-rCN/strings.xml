@@ -29,6 +29,10 @@
     <string name="status_unavailable">❌ 不可用</string>
     <string name="ims_cap_nr_nsa">NR NSA</string>
     <string name="ims_cap_nr_sa">NR SA</string>
+    <string name="ims_reg_tech">IMS 注册技术</string>
+    <string name="ims_reg_tech_unknown">未知</string>
+    <string name="refresh">刷新</string>
+    <string name="ims_data_snapshot_note">* 以上为实时快照数据，在 LTE 与 5G 网络切换时 IMS 注册技术会随之变化</string>
 
     <!-- SIM Card -->
     <string name="sim_card">本次应用的 SIM 卡</string>
