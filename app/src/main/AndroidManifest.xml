@@ -54,12 +54,8 @@
         android:label="BrokerInstrumentation"
         android:targetPackage="${applicationId}" />
     <instrumentation
-        android:name=".privileged.ConfigReader"
-        android:label="ConfigReader"
-        android:targetPackage="${applicationId}" />
-    <instrumentation
-        android:name=".privileged.ImsStatusReader"
-        android:label="ImsStatusReader"
+        android:name=".privileged.ImsCapabilityReader"
+        android:label="ImsCapabilityReader"
         android:targetPackage="${applicationId}" />
     <instrumentation
         android:name=".privileged.ImsResetter"
