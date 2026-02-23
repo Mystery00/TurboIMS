@@ -75,10 +75,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.model.Feature
-import io.github.vvb2060.ims.model.FeatureConfigMapper
-import io.github.vvb2060.ims.model.ImsCapabilityStatus
 import io.github.vvb2060.ims.model.FeatureValue
 import io.github.vvb2060.ims.model.FeatureValueType
+import io.github.vvb2060.ims.model.ImsCapabilityStatus
 import io.github.vvb2060.ims.model.ShizukuStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.model.SystemInfo
@@ -250,28 +249,31 @@ class MainActivity : BaseActivity() {
                         ).show()
                     }
                 )
-                ApplyButton(selectedSim != null) {
-                    if (shizukuStatus != ShizukuStatus.READY) {
-                        Toast.makeText(
-                            context,
-                            R.string.shizuku_not_running_msg,
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return@ApplyButton
+                Buttons(
+                    isApplyButtonEnabled = selectedSim != null,
+                    onApplyConfiguration = {
+                        if (shizukuStatus != ShizukuStatus.READY) {
+                            Toast.makeText(
+                                context,
+                                R.string.shizuku_not_running_msg,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@Buttons
+                        }
+                        viewModel.onApplyConfiguration(selectedSim!!, featureSwitches)
+                    },
+                    onResetConfiguration = {
+                        if (shizukuStatus != ShizukuStatus.READY) {
+                            Toast.makeText(
+                                context,
+                                R.string.shizuku_not_running_msg,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            return@Buttons
+                        }
+                        viewModel.onResetConfiguration(selectedSim!!)
                     }
-                    viewModel.onApplyConfiguration(selectedSim!!, featureSwitches)
-                }
-                ResetButton {
-                    if (shizukuStatus != ShizukuStatus.READY) {
-                        Toast.makeText(
-                            context,
-                            R.string.shizuku_not_running_msg,
-                            Toast.LENGTH_LONG
-                        ).show()
-                        return@ResetButton
-                    }
-                    viewModel.onResetConfiguration(selectedSim!!)
-                }
+                )
                 Tips()
                 Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
 
@@ -648,46 +650,49 @@ fun BooleanFeatureItem(
 }
 
 @Composable
-fun ResetButton(
-    onResetConfiguration: () -> Unit,
-) {
-    Button(
-        onClick = onResetConfiguration,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .height(56.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-    ) {
-        Text(
-            stringResource(R.string.reset_config),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
-    }
-}
-
-@Composable
-fun ApplyButton(
+fun Buttons(
     isApplyButtonEnabled: Boolean,
     onApplyConfiguration: () -> Unit,
+    onResetConfiguration: () -> Unit,
 ) {
-    Button(
-        onClick = onApplyConfiguration,
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .height(56.dp),
-        enabled = isApplyButtonEnabled,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Text(
-            stringResource(R.string.apply_config),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimary
-        )
+        Button(
+            modifier = Modifier
+                .height(56.dp)
+                .weight(1F),
+            onClick = onApplyConfiguration,
+            enabled = isApplyButtonEnabled,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            shape = ButtonGroupDefaults.connectedLeadingButtonShape,
+        ) {
+            Text(
+                stringResource(R.string.apply_config),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+        Button(
+            modifier = Modifier
+                .height(56.dp)
+                .weight(1F),
+            onClick = onResetConfiguration,
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+            shape = ButtonGroupDefaults.connectedTrailingButtonShape,
+        ) {
+            Text(
+                stringResource(R.string.reset_config),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        }
     }
 }
 
