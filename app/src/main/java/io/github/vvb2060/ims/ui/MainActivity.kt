@@ -209,6 +209,16 @@ class MainActivity : BaseActivity() {
                             )
                         )
                     },
+                )
+                SimCardSelectionCard(
+                    selectedSim = selectedSim,
+                    allSimList = allSimList,
+                    shizukuStatus = shizukuStatus,
+                    onSelectSim = { selectedSim = it },
+                    onRefreshSimList = {
+                        viewModel.loadSimList()
+                        Toast.makeText(context, R.string.sim_list_refresh, Toast.LENGTH_SHORT).show()
+                    },
                     onViewSystemConfigClick = {
                         if (selectedSim != null) {
                             scope.launch {
@@ -229,14 +239,7 @@ class MainActivity : BaseActivity() {
                     onResetIms = {
                         selectedSim?.let { viewModel.onResetIms(it) }
                     },
-                    selectedSim = selectedSim
                 )
-                SimCardSelectionCard(selectedSim, allSimList, onSelectSim = {
-                    selectedSim = it
-                }, onRefreshSimList = {
-                    viewModel.loadSimList()
-                    Toast.makeText(context, R.string.sim_list_refresh, Toast.LENGTH_SHORT).show()
-                })
                 FeaturesCard(
                     isSelectAllSim = selectedSim?.subId == -1,
                     featureSwitches,
@@ -316,7 +319,7 @@ class MainActivity : BaseActivity() {
 }
 
 /**
- *系统信息卡片
+ * 系统信息卡片
  * 显示软件版本、Android 版本、Shizuku 状态等。
  */
 @Composable
@@ -326,9 +329,6 @@ fun SystemInfoCard(
     onRefresh: () -> Unit,
     onRequestShizukuPermission: () -> Unit,
     onLogcatClick: () -> Unit,
-    onViewSystemConfigClick: () -> Unit = {},
-    onResetIms: () -> Unit = {},
-    selectedSim: SimSelection? = null
 ) {
     val uriHandler = LocalUriHandler.current
 
@@ -421,49 +421,23 @@ fun SystemInfoCard(
                 }
             }
 
-            // View System Config & Restart IMS Buttons
-            if (shizukuStatus == ShizukuStatus.READY) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Button(
-                        onClick = onViewSystemConfigClick,
-                        enabled = selectedSim?.subId != -1,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
-                        shape = ButtonGroupDefaults.connectedLeadingButtonShape,
-                    ) {
-                        Text(text = stringResource(id = R.string.view_system_config))
-                    }
-
-                    Button(
-                        onClick = onResetIms,
-                        enabled = selectedSim?.subId != -1,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                        shape = ButtonGroupDefaults.connectedTrailingButtonShape,
-                    ) {
-                        Text(text = stringResource(id = R.string.restart_ims))
-                    }
-                }
-            }
-
         }
     }
 }
 
 /**
- * SIM 卡选择卡片
- * 列出所有可用的 SIM 卡供用户选择。
+ * SIM 卡列表卡片
+ * 列出所有可用的 SIM 卡供用户选择，并提供查看 IMS 与重启 IMS 操作入口。
  */
 @Composable
 fun SimCardSelectionCard(
     selectedSim: SimSelection?,
     allSimList: List<SimSelection>,
+    shizukuStatus: ShizukuStatus,
     onSelectSim: (SimSelection) -> Unit,
     onRefreshSimList: () -> Unit,
+    onViewSystemConfigClick: () -> Unit,
+    onResetIms: () -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -502,6 +476,32 @@ fun SimCardSelectionCard(
                             selected = (selectedSim == sim),
                             onClick = { onSelectSim(sim) })
                         Text(sim.showTitle)
+                    }
+                }
+            }
+            if (shizukuStatus == ShizukuStatus.READY) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Button(
+                        onClick = onViewSystemConfigClick,
+                        enabled = selectedSim?.subId != -1,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                        shape = ButtonGroupDefaults.connectedLeadingButtonShape,
+                    ) {
+                        Text(text = stringResource(id = R.string.view_system_config))
+                    }
+                    Button(
+                        onClick = onResetIms,
+                        enabled = selectedSim?.subId != -1,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        shape = ButtonGroupDefaults.connectedTrailingButtonShape,
+                    ) {
+                        Text(text = stringResource(id = R.string.restart_ims))
                     }
                 }
             }

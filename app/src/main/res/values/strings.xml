@@ -35,7 +35,7 @@
     <string name="ims_data_snapshot_note">* Real-time snapshot. IMS registration state changes when switching between LTE and 5G.</string>
 
     <!-- SIM Card -->
-    <string name="sim_card">SIM Card for this apply</string>
+    <string name="sim_card">SIM Card List</string>
     <string name="all_sim">All SIM</string>
 
     <!-- Features -->
