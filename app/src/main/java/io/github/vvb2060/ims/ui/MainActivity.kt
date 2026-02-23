@@ -1,7 +1,6 @@
 package io.github.vvb2060.ims.ui
 
 import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
@@ -71,6 +70,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.model.Feature
 import io.github.vvb2060.ims.model.FeatureConfigMapper
+import io.github.vvb2060.ims.model.ImsCapabilityStatus
 import io.github.vvb2060.ims.model.FeatureValue
 import io.github.vvb2060.ims.model.FeatureValueType
 import io.github.vvb2060.ims.model.ShizukuStatus
@@ -120,18 +120,13 @@ class MainActivity : BaseActivity() {
         }
 
         var showSystemConfigDialog by remember { mutableStateOf(false) }
-        // Pair<ConfigBundle, IsImsRegistered?>
-        var systemConfigData by remember {
-            mutableStateOf<Pair<Bundle, Boolean?>?>(
-                null
-            )
-        }
+        var systemConfigData by remember { mutableStateOf<ImsCapabilityStatus?>(null) }
         val scope = rememberCoroutineScope()
 
         if (showSystemConfigDialog && systemConfigData != null) {
             SystemConfigDialog(
                 onDismissRequest = { showSystemConfigDialog = false },
-                configData = systemConfigData!!
+                status = systemConfigData!!
             )
         }
 
@@ -729,108 +724,34 @@ fun ShizukuUpdateDialog(dismissDialog: () -> Unit) {
 @Composable
 fun SystemConfigDialog(
     onDismissRequest: () -> Unit,
-    // Pair<ConfigBundle, IsImsRegistered?>
-    configData: Pair<Bundle, Boolean?>
+    status: ImsCapabilityStatus
 ) {
-    val (bundle, isImsRegistered) = configData
-    // Use mapper to generate summary easily
-    val mappedFeatures = remember(bundle) { FeatureConfigMapper.fromBundle(bundle) }
-    // Extract raw keys for detailed list
-    val rawKeys = remember(bundle) { bundle.keySet().sorted() }
-
     AlertDialog(
         onDismissRequest = onDismissRequest,
         title = { Text(stringResource(id = R.string.system_config_title)) },
         text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
-            ) {
-                // 1. High-level Summary
-                Text(
-                    text = stringResource(id = R.string.system_config_summary_header),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.primary
+            Column {
+                ImsStatusRow(
+                    label = "IMS",
+                    isAvailable = status.isRegistered,
+                    availableText = stringResource(R.string.ims_status_registered),
+                    unavailableText = stringResource(R.string.ims_status_not_registered)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // IMS Status
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "IMS Status: ", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    if (isImsRegistered == null) {
-                        Text(
-                            text = stringResource(id = R.string.ims_status_unknown),
-                            fontSize = 14.sp
-                        )
-                    } else if (isImsRegistered) {
-                        Text(
-                            text = "✅ ${stringResource(id = R.string.ims_status_registered)}",
-                            fontSize = 14.sp,
-                            color = Color(0xFF4CAF50)
-                        )
-                    } else {
-                        Text(
-                            text = "❌ ${stringResource(id = R.string.ims_status_not_registered)}",
-                            fontSize = 14.sp,
-                            color = Color.Red
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Construct summary string using mapped features for convenience
-                val summary = buildString {
-                    val volte = mappedFeatures[Feature.VOLTE]?.data as? Boolean ?: false
-                    val vowifi = mappedFeatures[Feature.VOWIFI]?.data as? Boolean ?: false
-                    val vonr = mappedFeatures[Feature.VONR]?.data as? Boolean ?: false
-                    val nr = mappedFeatures[Feature.FIVE_G_NR]?.data as? Boolean ?: false
-
-                    val enabledStr = stringResource(id = R.string.status_enabled)
-                    val disabledStr = stringResource(id = R.string.status_disabled)
-
-                    append("VoLTE: ${if (volte) enabledStr else disabledStr}\n")
-                    append("VoWiFi: ${if (vowifi) enabledStr else disabledStr}\n")
-                    append("VoNR: ${if (vonr) enabledStr else disabledStr}\n")
-                    append("5G NR: ${if (nr) enabledStr else disabledStr}")
-                }.trim()
-                Text(text = summary, fontSize = 14.sp)
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-
-                // 2. Detailed List (Raw Data)
-                Text(
-                    text = stringResource(id = R.string.system_config_details_header),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.primary
+                ImsStatusRow(label = "VoLTE", isAvailable = status.isVolteAvailable)
+                ImsStatusRow(label = "VoWiFi", isAvailable = status.isVoWifiAvailable)
+                ImsStatusRow(label = "VoNR", isAvailable = status.isVoNrAvailable)
+                ImsStatusRow(
+                    label = stringResource(R.string.vt),
+                    isAvailable = status.isVtAvailable
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                rawKeys.forEach { key ->
-                    val value = bundle.get(key)
-                    val valueStr = when (value) {
-                        is Boolean -> value.toString()
-                        is String -> value
-                        is IntArray -> value.contentToString()
-                        is Array<*> -> value.contentToString()
-                        else -> value.toString()
-                    }
-
-                    Column(modifier = Modifier.padding(vertical = 4.dp)) {
-                        Text(
-                            text = key,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 13.sp,
-                            lineHeight = 16.sp
-                        )
-                        Text(
-                            text = valueStr,
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
-                }
+                ImsStatusRow(
+                    label = stringResource(R.string.ims_cap_nr_nsa),
+                    isAvailable = status.isNrNsaAvailable
+                )
+                ImsStatusRow(
+                    label = stringResource(R.string.ims_cap_nr_sa),
+                    isAvailable = status.isNrSaAvailable
+                )
             }
         },
         confirmButton = {
@@ -839,4 +760,31 @@ fun SystemConfigDialog(
             }
         }
     )
+}
+
+@Composable
+private fun ImsStatusRow(
+    label: String,
+    isAvailable: Boolean,
+    availableText: String = stringResource(R.string.status_available),
+    unavailableText: String = stringResource(R.string.status_unavailable),
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = "$label: ",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 14.sp,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = if (isAvailable) availableText else unavailableText,
+            fontSize = 14.sp,
+            color = if (isAvailable) Color(0xFF4CAF50) else Color.Red
+        )
+    }
 }

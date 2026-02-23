@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
@@ -13,7 +12,7 @@ import io.github.vvb2060.ims.BuildConfig
 import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.ShizukuProvider
 import io.github.vvb2060.ims.model.Feature
-import io.github.vvb2060.ims.model.FeatureConfigMapper
+import io.github.vvb2060.ims.model.ImsCapabilityStatus
 import io.github.vvb2060.ims.model.FeatureValue
 import io.github.vvb2060.ims.model.FeatureValueType
 import io.github.vvb2060.ims.model.ShizukuStatus
@@ -236,16 +235,8 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      * 通过 Shizuku 读取系统当前实际生效的 CarrierConfig 和 IMS 注册状态。
      * 返回详细的配置映射 Map 和 IMS 注册状态 (Boolean?)。
      */
-    suspend fun loadRealSystemConfig(subId: Int): Pair<Bundle, Boolean?>? {
-        val bundle = ShizukuProvider.readCarrierConfig(
-            application,
-            subId,
-            FeatureConfigMapper.readKeys
-        ) ?: return null
-
-        val imsStatus = ShizukuProvider.readImsRegistrationStatus(application, subId)
-
-        return Pair(bundle, imsStatus)
+    suspend fun loadRealSystemConfig(subId: Int): ImsCapabilityStatus? {
+        return ShizukuProvider.readImsCapabilities(application, subId)
     }
 
     /**
@@ -266,16 +257,15 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
 
     fun onResetIms(simSelection: SimSelection) {
         viewModelScope.launch {
-            val app = getApplication<Application>()
             try {
-                val error = ShizukuProvider.resetIms(app, simSelection.subId)
+                val error = ShizukuProvider.resetIms(application, simSelection.subId)
                 if (error == null) {
-                    toast(app.getString(R.string.restart_ims_success))
+                    toast(application.getString(R.string.restart_ims_success))
                 } else {
-                    toast(app.getString(R.string.restart_ims_failed, error), false)
+                    toast(application.getString(R.string.restart_ims_failed, error), false)
                 }
             } catch (e: Exception) {
-                toast(app.getString(R.string.restart_ims_failed, e.localizedMessage), false)
+                toast(application.getString(R.string.restart_ims_failed, e.localizedMessage), false)
             }
         }
     }

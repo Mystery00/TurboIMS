@@ -9,12 +9,12 @@ import android.os.Bundle
 import android.os.ServiceManager
 import android.telephony.SubscriptionInfo
 import android.util.Log
+import io.github.vvb2060.ims.model.ImsCapabilityStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.privileged.BrokerInstrumentation
-import io.github.vvb2060.ims.privileged.ConfigReader
+import io.github.vvb2060.ims.privileged.ImsCapabilityReader
 import io.github.vvb2060.ims.privileged.ImsModifier
 import io.github.vvb2060.ims.privileged.ImsResetter
-import io.github.vvb2060.ims.privileged.ImsStatusReader
 import io.github.vvb2060.ims.privileged.SimReader
 import kotlinx.coroutines.CompletableDeferred
 import org.lsposed.hiddenapibypass.LSPass
@@ -75,30 +75,28 @@ class ShizukuProvider : ShizukuProvider() {
                     msg.contains("failed with empty result")
         }
 
-        suspend fun readCarrierConfig(
-            context: Context,
-            subId: Int,
-            keys: Array<String>
-        ): Bundle? {
-            val args = Bundle()
-            args.putInt(ConfigReader.BUNDLE_SELECT_SIM_ID, subId)
-            args.putStringArray(ConfigReader.BUNDLE_KEYS, keys)
-            val result = startInstrumentation(context, ConfigReader::class.java, args, true)
+        suspend fun readImsCapabilities(context: Context, subId: Int): ImsCapabilityStatus? {
+            val args = Bundle().apply {
+                putInt(ImsCapabilityReader.BUNDLE_SELECT_SIM_ID, subId)
+            }
+            val result = startInstrumentation(context, ImsCapabilityReader::class.java, args, true)
             if (result == null) {
-                Log.w(TAG, "readCarrierConfig: failed with empty result")
+                Log.w(TAG, "readImsCapabilities: failed with empty result")
                 return null
             }
-            return result.getBundle(ConfigReader.BUNDLE_RESULT)
-        }
-
-        suspend fun readImsRegistrationStatus(context: Context, subId: Int): Boolean? {
-            val args = Bundle().apply {
-                putInt(ImsStatusReader.BUNDLE_SELECT_SIM_ID, subId)
+            if (result.getString(ImsCapabilityReader.BUNDLE_RESULT_MSG) != null) {
+                Log.w(TAG, "readImsCapabilities: ${result.getString(ImsCapabilityReader.BUNDLE_RESULT_MSG)}")
+                return null
             }
-            val result = startInstrumentation(context, ImsStatusReader::class.java, args, true)
-            if (result == null) return null
-            if (result.getString(ImsStatusReader.BUNDLE_RESULT_MSG) != null) return null
-            return result.getBoolean(ImsStatusReader.BUNDLE_RESULT)
+            return ImsCapabilityStatus(
+                isRegistered = result.getBoolean(ImsCapabilityReader.BUNDLE_IMS_REGISTERED),
+                isVolteAvailable = result.getBoolean(ImsCapabilityReader.BUNDLE_VOLTE),
+                isVoWifiAvailable = result.getBoolean(ImsCapabilityReader.BUNDLE_VOWIFI),
+                isVoNrAvailable = result.getBoolean(ImsCapabilityReader.BUNDLE_VONR),
+                isVtAvailable = result.getBoolean(ImsCapabilityReader.BUNDLE_VT),
+                isNrNsaAvailable = result.getBoolean(ImsCapabilityReader.BUNDLE_NR_NSA),
+                isNrSaAvailable = result.getBoolean(ImsCapabilityReader.BUNDLE_NR_SA),
+            )
         }
 
         suspend fun resetIms(context: Context, subId: Int): String? {
