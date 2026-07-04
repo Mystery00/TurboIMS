@@ -4,6 +4,7 @@ plugins {
 
 android {
     namespace = "stub"
+    enableKotlin = false
     compileSdk {
         version = release(libs.versions.android.compileSdk.get().toInt())
     }
