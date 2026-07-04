@@ -223,7 +223,7 @@ class ImsModifier : Instrumentation() {
                 }
             }
         } finally {
-            am.stopDelegateShellPermissionIdentity()
+            am.stopDelegateShellPermissionIdentityCompat()
             Log.i(TAG, "stopped shell permission delegation")
         }
     }

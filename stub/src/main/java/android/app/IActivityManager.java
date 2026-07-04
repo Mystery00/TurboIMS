@@ -13,6 +13,8 @@ public interface IActivityManager extends IInterface {
 
     void stopDelegateShellPermissionIdentity() throws RemoteException;
 
+    void stopDelegateShellPermissionIdentity(int uid) throws RemoteException;
+
     boolean startInstrumentation(ComponentName className, String profileFile,
                                   int flags, Bundle arguments, IInstrumentationWatcher watcher,
                                   IUiAutomationConnection connection, int userId,

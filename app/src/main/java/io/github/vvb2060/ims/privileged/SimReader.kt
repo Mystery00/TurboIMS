@@ -44,7 +44,7 @@ class SimReader : Instrumentation() {
             Log.e(TAG, "failed to read sim info list", e)
             finish(Activity.RESULT_CANCELED, Bundle())
         } finally {
-            am.stopDelegateShellPermissionIdentity()
+            am.stopDelegateShellPermissionIdentityCompat()
             Log.i(TAG, "stopped shell permission delegation")
         }
     }

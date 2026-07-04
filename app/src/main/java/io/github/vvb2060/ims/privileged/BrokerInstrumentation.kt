@@ -68,7 +68,7 @@ class BrokerInstrumentation : Instrumentation() {
             result.putBoolean(ImsModifier.BUNDLE_RESULT, false)
             result.putString(ImsModifier.BUNDLE_RESULT_MSG, t.message ?: t.javaClass.simpleName)
         } finally {
-            am.stopDelegateShellPermissionIdentity()
+            am.stopDelegateShellPermissionIdentityCompat()
         }
 
         finish(Activity.RESULT_OK, result)

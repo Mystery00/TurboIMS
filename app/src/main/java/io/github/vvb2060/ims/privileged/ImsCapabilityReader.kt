@@ -118,7 +118,7 @@ class ImsCapabilityReader : Instrumentation() {
             Log.e(TAG, "read IMS capabilities failed", t)
             result.putString(BUNDLE_RESULT_MSG, t.message ?: t.javaClass.simpleName)
         } finally {
-            am.stopDelegateShellPermissionIdentity()
+            am.stopDelegateShellPermissionIdentityCompat()
         }
 
         finish(Activity.RESULT_OK, result)
