@@ -7,6 +7,7 @@
 - 可保留 Shizuku、Instrumentation、CarrierConfig、IMS、VoLTE、VoWiFi、VoNR、AIDL 等通用英文技术名词。
 - 修改代码前先理解当前实现和设备兼容约束，避免只针对一个 Android 版本做硬编码修复。
 - 本项目不要求添加单元测试。代码变更后至少运行 `.\gradlew.bat :app:assembleDebug --stacktrace --console=plain` 验证编译。
+- Git 提交信息使用中文；自动生成提交信息时也必须生成中文内容。
 
 ## 项目概览
 

@@ -1,18 +1,8 @@
-### 优化
+## 修复
 
-- **查看 IMS** 对话框全面升级：
-  - 标题栏下方显示当前查询的 SIM 卡名称，避免多卡场景混淆
-  - 新增「IMS 注册技术」行，实时展示当前注册所用接入技术（LTE / NR / WiFi）
-  - 新增「刷新」按钮，可在不关闭对话框的情况下重新查询 IMS 状态；刷新中显示加载指示器防止重复触发
-  - 底部增加瞬时数据说明，提示用户数据随 LTE 与 5G 网络切换而变化
-- 「查看 IMS」与「重启 IMS」按钮从系统信息卡片移至 SIM 卡列表卡片，操作位置更贴近 SIM 选择
-- SIM 卡列表卡片标题由「本次应用的 SIM 卡」更名为「SIM 卡列表」
-- SIM 卡列表刷新按钮改为图标 + 文字样式，与其他操作按钮风格统一
+- 修复 Android 17 QPR1 Beta 6 上 `IActivityManager.stopDelegateShellPermissionIdentity` 签名变化导致的崩溃问题，避免读取 SIM 信息或执行 IMS 配置操作时因停止 shell 权限委托失败而闪退。
+- shell 权限委托停止逻辑同时兼容旧版无参接口和新版带 `uid` 接口，保持旧版 Android 与 Android 17 QPR1 Beta 6 都可正常释放权限委托。
 
-### 移除
+## 优化
 
-- **移除运营商国家码自定义功能**
-
-  该功能已从本应用中移除。如需自定义运营商国家码，以及网络叹号屏蔽、TikTok 相关修复等更多定制功能，请使用：
-
-  **[carrier-ims-for-pixel](https://github.com/ryfineZ/carrier-ims-for-pixel)**
+- 更新 AndroidX、Lifecycle、Activity Compose、Compose BOM 和 Material 3 等依赖版本。
