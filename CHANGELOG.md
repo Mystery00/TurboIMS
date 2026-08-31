@@ -1,8 +1,15 @@
-## 修复
+【新增】
+ · 新增 5GA/5G+ 图标配置，支持自定义 5G 信号显示效果。
+ · 新增漫游时启用 VoWiFi 的独立选项，默认关闭，并提示运营商限制及可能资费。
+ · 支持 Material You 动态取色，界面可跟随系统配色。
 
-- 修复 Android 17 QPR1 Beta 6 上 `IActivityManager.stopDelegateShellPermissionIdentity` 签名变化导致的崩溃问题，避免读取 SIM 信息或执行 IMS 配置操作时因停止 shell 权限委托失败而闪退。
-- shell 权限委托停止逻辑同时兼容旧版无参接口和新版带 `uid` 接口，保持旧版 Android 与 Android 17 QPR1 Beta 6 都可正常释放权限委托。
+【修复】
+ · 修复特权操作异常时可能永久等待或无法显示具体错误的问题。
+ · 改善 Android 不同版本的 shell 权限委托兼容性，降低读取和配置操作失败风险。
+ · 修复配置应用失败时错误覆盖历史配置的问题。
+ · 修复部分情况下 Shizuku 需要更新状态被错误覆盖的问题。
+ · 修复未选择 SIM 卡时点击重置可能崩溃的问题。
 
-## 优化
-
-- 更新 AndroidX、Lifecycle、Activity Compose、Compose BOM 和 Material 3 等依赖版本。
+【优化】
+ · 优化配置应用流程，成功后才保存配置并固定本次应用内容。
+ · 增加特权异常处理和相关测试，提升问题诊断能力。
