@@ -141,21 +141,27 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      */
     fun onApplyConfiguration(selectedSim: SimSelection, map: Map<Feature, FeatureValue>) {
         viewModelScope.launch {
+            // 在首次挂起前固定本次应用内容，避免操作期间的 UI 编辑污染成功历史。
+            val appliedConfig = map.toMap()
+
             // 构建传递给底层 ImsModifier 的配置 Bundle
             val carrierName =
-                if (selectedSim.subId == -1) null else map[Feature.CARRIER_NAME]?.data as String?
+                if (selectedSim.subId == -1) null else appliedConfig[Feature.CARRIER_NAME]?.data as String?
             val imsUserAgent =
-                if (selectedSim.subId == -1) null else map[Feature.IMS_USER_AGENT]?.data as String?
-            val enableVoLTE = (map[Feature.VOLTE]?.data ?: true) as Boolean
-            val enableVoWiFi = (map[Feature.VOWIFI]?.data ?: true) as Boolean
-            val enableVT = (map[Feature.VT]?.data ?: true) as Boolean
-            val enableVoNR = (map[Feature.VONR]?.data ?: true) as Boolean
-            val enableCrossSIM = (map[Feature.CROSS_SIM]?.data ?: true) as Boolean
-            val enableUT = (map[Feature.UT]?.data ?: true) as Boolean
-            val enable5GNR = (map[Feature.FIVE_G_NR]?.data ?: true) as Boolean
-            val enable5GThreshold = (map[Feature.FIVE_G_THRESHOLDS]?.data ?: true) as Boolean
-            val enable5GPlusIcon = (map[Feature.FIVE_G_PLUS_ICON]?.data ?: true) as Boolean
-            val enableShow4GForLTE = (map[Feature.SHOW_4G_FOR_LTE]?.data ?: false) as Boolean
+                if (selectedSim.subId == -1) null else appliedConfig[Feature.IMS_USER_AGENT]?.data as String?
+            val enableVoLTE = (appliedConfig[Feature.VOLTE]?.data ?: true) as Boolean
+            val enableVoWiFi = (appliedConfig[Feature.VOWIFI]?.data ?: true) as Boolean
+            val enableVT = (appliedConfig[Feature.VT]?.data ?: true) as Boolean
+            val enableVoNR = (appliedConfig[Feature.VONR]?.data ?: true) as Boolean
+            val enableCrossSIM = (appliedConfig[Feature.CROSS_SIM]?.data ?: true) as Boolean
+            val enableUT = (appliedConfig[Feature.UT]?.data ?: true) as Boolean
+            val enable5GNR = (appliedConfig[Feature.FIVE_G_NR]?.data ?: true) as Boolean
+            val enable5GThreshold =
+                (appliedConfig[Feature.FIVE_G_THRESHOLDS]?.data ?: true) as Boolean
+            val enable5GPlusIcon =
+                (appliedConfig[Feature.FIVE_G_PLUS_ICON]?.data ?: true) as Boolean
+            val enableShow4GForLTE =
+                (appliedConfig[Feature.SHOW_4G_FOR_LTE]?.data ?: false) as Boolean
 
             val bundle = ImsModifier.buildBundle(
                 carrierName,
@@ -177,7 +183,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
             val resultMsg = ShizukuProvider.overrideImsConfig(application, bundle)
             if (resultMsg == null) {
                 // 仅在系统配置成功后保存历史，避免失败尝试覆盖上次有效配置。
-                saveConfiguration(selectedSim.subId, map)
+                saveConfiguration(selectedSim.subId, appliedConfig)
                 toast(application.getString(R.string.config_success_message))
             } else {
                 toast(application.getString(R.string.config_failed, resultMsg), false)
