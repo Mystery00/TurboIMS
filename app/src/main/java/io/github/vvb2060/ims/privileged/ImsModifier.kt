@@ -13,6 +13,7 @@ import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
 import android.util.Log
 import io.github.vvb2060.ims.LogcatRepository
+import io.github.vvb2060.ims.model.FiveGPlusConfig
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
 
@@ -39,6 +40,7 @@ class ImsModifier : Instrumentation() {
             enableUT: Boolean,
             enable5GNR: Boolean,
             enable5GThreshold: Boolean,
+            enable5GPlusIcon: Boolean,
             enableShow4GForLTE: Boolean,
         ): Bundle {
             val bundle = Bundle()
@@ -123,6 +125,10 @@ class ImsModifier : Instrumentation() {
                         CarrierConfigManager.CARRIER_NR_AVAILABILITY_SA
                     )
                 )
+                if (enable5GPlusIcon) {
+                    // 只有达到较高 NR 聚合带宽并满足频段条件时，系统才显示 5G+ 图标。
+                    FiveGPlusConfig.putOverrides(bundle)
+                }
                 if (enable5GThreshold) {
                     bundle.putIntArray(
                         CarrierConfigManager.KEY_5G_NR_SSRSRP_THRESHOLDS_INT_ARRAY,  // Boundaries: [-140 dBm, -44 dBm]

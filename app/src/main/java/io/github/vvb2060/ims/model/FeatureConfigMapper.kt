@@ -17,6 +17,7 @@ object FeatureConfigMapper {
         CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL,
         CarrierConfigManager.KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY,
         CarrierConfigManager.KEY_5G_NR_SSRSRP_THRESHOLDS_INT_ARRAY,
+        *FiveGPlusConfig.readKeys.toTypedArray(),
         CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL,
         KEY_SHOW_4G_FOR_LTE,
         CarrierConfigManager.KEY_CARRIER_CROSS_SIM_IMS_AVAILABLE_BOOL,
@@ -109,6 +110,11 @@ object FeatureConfigMapper {
             bundle.getIntArray(CarrierConfigManager.KEY_5G_NR_SSRSRP_THRESHOLDS_INT_ARRAY)
         val thresholdEnabled = thresholds?.contentEquals(FIVE_G_THRESHOLDS) == true
         map[Feature.FIVE_G_THRESHOLDS] = FeatureValue(thresholdEnabled, FeatureValueType.BOOLEAN)
+
+        map[Feature.FIVE_G_PLUS_ICON] = FeatureValue(
+            FiveGPlusConfig.matchesOverrides(bundle),
+            FeatureValueType.BOOLEAN
+        )
 
         val show4g = bundle.getBooleanOrDefault(
             CarrierConfigManager.KEY_SHOW_4G_FOR_LTE_DATA_ICON_BOOL,
