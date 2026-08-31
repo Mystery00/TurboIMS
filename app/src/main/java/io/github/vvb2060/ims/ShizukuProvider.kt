@@ -12,11 +12,13 @@ import android.util.Log
 import io.github.vvb2060.ims.model.ImsCapabilityStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.privileged.BrokerInstrumentation
+import io.github.vvb2060.ims.privileged.isCarrierConfigPermissionError
 import io.github.vvb2060.ims.privileged.ImsCapabilityReader
 import io.github.vvb2060.ims.privileged.ImsModifier
 import io.github.vvb2060.ims.privileged.ImsResetter
 import io.github.vvb2060.ims.privileged.SimReader
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.withTimeoutOrNull
 import org.lsposed.hiddenapibypass.LSPass
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.ShizukuProvider
@@ -30,6 +32,7 @@ class ShizukuProvider : ShizukuProvider() {
 
     companion object {
         private const val TAG = "ShizukuProvider"
+        private const val INSTRUMENTATION_TIMEOUT_MS = 15_000L
 
         suspend fun overrideImsConfig(context: Context, data: Bundle): String? {
             val primaryArgs = Bundle(data)
@@ -69,10 +72,8 @@ class ShizukuProvider : ShizukuProvider() {
         }
 
         private fun shouldRetryWithBroker(msg: String): Boolean {
-            return msg.contains("SecurityException") ||
-                    msg.contains("does not have android.permission.MODIFY_PHONE_STATE") ||
-                    msg.contains("No permission to write to carrier config") ||
-                    msg.contains("failed with empty result")
+            return isCarrierConfigPermissionError(msg) ||
+                    msg.contains("failed with empty result", ignoreCase = true)
         }
 
         suspend fun readImsCapabilities(context: Context, subId: Int): ImsCapabilityStatus? {
@@ -161,10 +162,29 @@ class ShizukuProvider : ShizukuProvider() {
             val connection = UiAutomationConnection()
             try {
                 Log.d(TAG, "startInstrumentation: call with component: $name")
-                am.startInstrumentation(name, null, flags, args, watcher, connection, 0, null)
+                val started = am.startInstrumentation(
+                    name,
+                    null,
+                    flags,
+                    args,
+                    watcher,
+                    connection,
+                    0,
+                    null
+                )
+                if (!started) {
+                    Log.e(TAG, "instrumentation start rejected for component: $name")
+                    return null
+                }
                 Log.i(TAG, "instrumentation started successfully")
                 if (receiveResult) {
-                    return deferredResult.await()
+                    val result = withTimeoutOrNull(INSTRUMENTATION_TIMEOUT_MS) {
+                        deferredResult.await()
+                    }
+                    if (result == null) {
+                        Log.e(TAG, "instrumentation result timeout for component: $name")
+                    }
+                    return result
                 }
                 return null
             } catch (e: Exception) {
