@@ -151,6 +151,8 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
                 if (selectedSim.subId == -1) null else appliedConfig[Feature.IMS_USER_AGENT]?.data as String?
             val enableVoLTE = (appliedConfig[Feature.VOLTE]?.data ?: true) as Boolean
             val enableVoWiFi = (appliedConfig[Feature.VOWIFI]?.data ?: true) as Boolean
+            val enableVoWifiRoaming =
+                (appliedConfig[Feature.VOWIFI_ROAMING]?.data ?: false) as Boolean
             val enableVT = (appliedConfig[Feature.VT]?.data ?: true) as Boolean
             val enableVoNR = (appliedConfig[Feature.VONR]?.data ?: true) as Boolean
             val enableCrossSIM = (appliedConfig[Feature.CROSS_SIM]?.data ?: true) as Boolean
@@ -168,6 +170,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
                 imsUserAgent,
                 enableVoLTE,
                 enableVoWiFi,
+                enableVoWifiRoaming,
                 enableVT,
                 enableVoNR,
                 enableCrossSIM,

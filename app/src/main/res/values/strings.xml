@@ -48,6 +48,8 @@
     <string name="volte_desc">Enable 4G HD voice calls</string>
     <string name="vowifi">VoWiFi (WiFi Calling)</string>
     <string name="vowifi_desc">Enable calling over WiFi networks</string>
+    <string name="vowifi_roaming">VoWiFi While Roaming</string>
+    <string name="vowifi_roaming_desc">Enable VoWiFi by default while roaming; carrier support and charges may apply</string>
     <string name="vt">VT (Video Calling)</string>
     <string name="vt_desc">Enable video calling</string>
     <string name="vonr">VoNR (5G Voice)</string>

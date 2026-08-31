@@ -11,6 +11,7 @@ import android.telephony.SubscriptionManager
 import android.util.Log
 import io.github.vvb2060.ims.LogcatRepository
 import io.github.vvb2060.ims.model.FiveGPlusConfig
+import io.github.vvb2060.ims.model.VoWifiRoamingConfig
 import rikka.shizuku.Shizuku
 
 class ImsModifier : Instrumentation() {
@@ -30,6 +31,7 @@ class ImsModifier : Instrumentation() {
             imsUserAgent: String?,
             enableVoLTE: Boolean,
             enableVoWiFi: Boolean,
+            enableVoWifiRoaming: Boolean,
             enableVT: Boolean,
             enableVoNR: Boolean,
             enableCrossSIM: Boolean,
@@ -103,6 +105,9 @@ class ImsModifier : Instrumentation() {
                 // KEY_WFC_SPN_FORMAT_IDX_INT
                 bundle.putInt("wfc_spn_format_idx_int", 6)
             }
+
+            // 漫游 VoWiFi 可能产生额外费用，关闭时不写入，避免覆盖运营商默认值。
+            VoWifiRoamingConfig.putOverride(bundle, enableVoWifiRoaming)
 
             // VoNR (5G 语音) 配置
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

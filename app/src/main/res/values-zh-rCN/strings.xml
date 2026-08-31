@@ -48,6 +48,8 @@
     <string name="volte_desc">启用 4G 高清语音通话</string>
     <string name="vowifi">VoWiFi（WiFi 通话）</string>
     <string name="vowifi_desc">启用 WiFi 网络通话</string>
+    <string name="vowifi_roaming">漫游时启用 VoWiFi</string>
+    <string name="vowifi_roaming_desc">漫游时默认启用 VoWiFi，是否可用及资费取决于运营商</string>
     <string name="vt">VT（视频通话）</string>
     <string name="vt_desc">启用视频通话功能</string>
     <string name="vonr">VoNR（5G 语音）</string>

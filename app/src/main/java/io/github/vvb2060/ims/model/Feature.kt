@@ -33,6 +33,12 @@ enum class Feature(
         R.string.vowifi_desc,
         true,
     ),
+    VOWIFI_ROAMING(
+        FeatureValueType.BOOLEAN,
+        R.string.vowifi_roaming,
+        R.string.vowifi_roaming_desc,
+        false,
+    ),
     VT(
         FeatureValueType.BOOLEAN,
         R.string.vt,

@@ -13,6 +13,7 @@ object FeatureConfigMapper {
         CarrierConfigManager.KEY_CARRIER_NAME_STRING,
         CarrierConfigManager.KEY_CARRIER_VOLTE_AVAILABLE_BOOL,
         CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL,
+        VoWifiRoamingConfig.KEY_CARRIER_DEFAULT_WFC_IMS_ROAMING_ENABLED_BOOL,
         CarrierConfigManager.KEY_CARRIER_VT_AVAILABLE_BOOL,
         CarrierConfigManager.KEY_CARRIER_SUPPORTS_SS_OVER_UT_BOOL,
         CarrierConfigManager.KEY_CARRIER_NR_AVAILABILITIES_INT_ARRAY,
@@ -60,6 +61,11 @@ object FeatureConfigMapper {
                 CarrierConfigManager.KEY_CARRIER_WFC_IMS_AVAILABLE_BOOL,
                 Feature.VOWIFI.defaultValue as Boolean
             ),
+            FeatureValueType.BOOLEAN
+        )
+
+        map[Feature.VOWIFI_ROAMING] = FeatureValue(
+            VoWifiRoamingConfig.isEnabled(bundle),
             FeatureValueType.BOOLEAN
         )
 
