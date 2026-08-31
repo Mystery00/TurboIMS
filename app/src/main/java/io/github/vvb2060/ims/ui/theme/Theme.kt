@@ -3,9 +3,12 @@ package io.github.vvb2060.ims.ui.theme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -83,12 +86,33 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
+enum class ColorSchemeSource {
+    DYNAMIC_LIGHT,
+    DYNAMIC_DARK,
+    STATIC_LIGHT,
+    STATIC_DARK,
+}
+
+fun selectColorSchemeSource(darkTheme: Boolean, dynamicColor: Boolean): ColorSchemeSource = when {
+    dynamicColor && darkTheme -> ColorSchemeSource.DYNAMIC_DARK
+    dynamicColor -> ColorSchemeSource.DYNAMIC_LIGHT
+    darkTheme -> ColorSchemeSource.STATIC_DARK
+    else -> ColorSchemeSource.STATIC_LIGHT
+}
+
 @Composable
 fun TurbolImsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) darkScheme else lightScheme
+    val context = LocalContext.current
+    val colorScheme = when (selectColorSchemeSource(darkTheme, dynamicColor)) {
+        ColorSchemeSource.DYNAMIC_LIGHT -> dynamicLightColorScheme(context)
+        ColorSchemeSource.DYNAMIC_DARK -> dynamicDarkColorScheme(context)
+        ColorSchemeSource.STATIC_LIGHT -> lightScheme
+        ColorSchemeSource.STATIC_DARK -> darkScheme
+    }
 
     MaterialExpressiveTheme(
         colorScheme = colorScheme,
