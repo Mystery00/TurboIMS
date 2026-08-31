@@ -138,5 +138,7 @@ adb logcat -d -v time AndroidRuntime:E ShizukuProvider:D SimReader:I ShellPermis
 ## 文档维护
 
 - 本文件是代理协作的权威说明。
+- 所有设计文档和实施计划统一存放在 `docs/plans/` 目录，不要创建 `docs/superpowers/specs/`、`docs/superpowers/plans/` 等其他规划文档目录。
+- 设计文档和实施计划文件名使用 `YYYY-MM-DD-<主题>-design.md` 与 `YYYY-MM-DD-<主题>-plan.md` 格式。
 - 若项目结构、构建版本、兼容策略或开发约定发生变化，应更新本文件。
 - `CLAUDE.md` 仅作为 Claude Code 的兼容入口，不维护重复的项目说明。
