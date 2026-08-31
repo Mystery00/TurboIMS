@@ -276,7 +276,7 @@ class MainActivity : BaseActivity() {
                     }
                 )
                 Buttons(
-                    isApplyButtonEnabled = selectedSim != null,
+                    isActionEnabled = selectedSim != null,
                     onApplyConfiguration = {
                         if (shizukuStatus != ShizukuStatus.READY) {
                             Toast.makeText(
@@ -286,7 +286,8 @@ class MainActivity : BaseActivity() {
                             ).show()
                             return@Buttons
                         }
-                        viewModel.onApplyConfiguration(selectedSim!!, featureSwitches)
+                        val currentSim = selectedSim ?: return@Buttons
+                        viewModel.onApplyConfiguration(currentSim, featureSwitches)
                     },
                     onResetConfiguration = {
                         if (shizukuStatus != ShizukuStatus.READY) {
@@ -297,7 +298,8 @@ class MainActivity : BaseActivity() {
                             ).show()
                             return@Buttons
                         }
-                        viewModel.onResetConfiguration(selectedSim!!)
+                        val currentSim = selectedSim ?: return@Buttons
+                        viewModel.onResetConfiguration(currentSim)
                     }
                 )
                 Tips()
@@ -677,7 +679,7 @@ fun BooleanFeatureItem(
 
 @Composable
 fun Buttons(
-    isApplyButtonEnabled: Boolean,
+    isActionEnabled: Boolean,
     onApplyConfiguration: () -> Unit,
     onResetConfiguration: () -> Unit,
 ) {
@@ -693,7 +695,7 @@ fun Buttons(
                 .height(56.dp)
                 .weight(1F),
             onClick = onApplyConfiguration,
-            enabled = isApplyButtonEnabled,
+            enabled = isActionEnabled,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             shape = ButtonGroupDefaults.connectedLeadingButtonShape,
         ) {
@@ -709,6 +711,7 @@ fun Buttons(
                 .height(56.dp)
                 .weight(1F),
             onClick = onResetConfiguration,
+            enabled = isActionEnabled,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
             shape = ButtonGroupDefaults.connectedTrailingButtonShape,
         ) {

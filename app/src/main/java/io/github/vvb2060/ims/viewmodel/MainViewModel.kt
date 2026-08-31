@@ -70,13 +70,13 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
         viewModelScope.launch {
             if (Shizuku.isPreV11()) {
                 _shizukuStatus.value = ShizukuStatus.NEED_UPDATE
+                return@launch
             }
-            val status = when {
+            _shizukuStatus.value = when {
                 !Shizuku.pingBinder() -> ShizukuStatus.NOT_RUNNING
                 Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuStatus.NO_PERMISSION
                 else -> ShizukuStatus.READY
             }
-            _shizukuStatus.value = status
         }
     }
 
@@ -141,9 +141,6 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      */
     fun onApplyConfiguration(selectedSim: SimSelection, map: Map<Feature, FeatureValue>) {
         viewModelScope.launch {
-            // 保存配置到 SharedPreferences
-            saveConfiguration(selectedSim.subId, map)
-
             // 构建传递给底层 ImsModifier 的配置 Bundle
             val carrierName =
                 if (selectedSim.subId == -1) null else map[Feature.CARRIER_NAME]?.data as String?
@@ -179,6 +176,8 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
             // 调用 Shizuku 服务进行实际修改
             val resultMsg = ShizukuProvider.overrideImsConfig(application, bundle)
             if (resultMsg == null) {
+                // 仅在系统配置成功后保存历史，避免失败尝试覆盖上次有效配置。
+                saveConfiguration(selectedSim.subId, map)
                 toast(application.getString(R.string.config_success_message))
             } else {
                 toast(application.getString(R.string.config_failed, resultMsg), false)
