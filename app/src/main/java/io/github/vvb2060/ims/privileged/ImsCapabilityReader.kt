@@ -1,12 +1,10 @@
 package io.github.vvb2060.ims.privileged
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.IActivityManager
 import android.app.Instrumentation
-import android.content.Context
 import android.os.Bundle
 import android.os.ServiceManager
-import android.system.Os
 import android.telephony.AccessNetworkConstants
 import android.telephony.NetworkRegistrationInfo
 import android.telephony.TelephonyManager
@@ -37,6 +35,8 @@ class ImsCapabilityReader : Instrumentation() {
         private const val CAPABILITY_TYPE_VIDEO = 2
     }
 
+    // serviceState 由 shell permission delegation 授权，委托失败会转换为结果错误。
+    @SuppressLint("MissingPermission")
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
         if (arguments == null) {
@@ -45,17 +45,14 @@ class ImsCapabilityReader : Instrumentation() {
         }
 
         val result = Bundle()
-        val binder = ServiceManager.getService(Context.ACTIVITY_SERVICE)
-        val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(binder))
-        am.startDelegateShellPermissionIdentity(Os.getuid(), null)
-        try {
-            val subId = arguments.getInt(BUNDLE_SELECT_SIM_ID, -1)
-            if (subId < 0) {
-                result.putString(BUNDLE_RESULT_MSG, "invalid subId")
-                finish(Activity.RESULT_OK, result)
-                return
-            }
+        val subId = arguments.getInt(BUNDLE_SELECT_SIM_ID, -1)
+        if (subId < 0) {
+            result.putString(BUNDLE_RESULT_MSG, "invalid subId")
+            finish(Activity.RESULT_OK, result)
+            return
+        }
 
+        val failure = runWithShellPermissionDelegation(TAG) {
             // 1. 整体 IMS 注册状态（隐藏 API，通过已有 stub 调用）
             val telephony = ITelephony.Stub.asInterface(
                 ShizukuBinderWrapper(ServiceManager.getService("phone"))
@@ -114,13 +111,11 @@ class ImsCapabilityReader : Instrumentation() {
                 BUNDLE_NR_SA,
                 nrRegInfo?.accessNetworkTechnology == TelephonyManager.NETWORK_TYPE_NR
             )
-        } catch (t: Throwable) {
-            Log.e(TAG, "read IMS capabilities failed", t)
-            result.putString(BUNDLE_RESULT_MSG, t.message ?: t.javaClass.simpleName)
-        } finally {
-            am.stopDelegateShellPermissionIdentityCompat()
         }
-
+        if (failure != null) {
+            Log.e(TAG, "read IMS capabilities failed", failure)
+            result.putString(BUNDLE_RESULT_MSG, failure.toPrivilegedErrorMessage())
+        }
         finish(Activity.RESULT_OK, result)
     }
 }

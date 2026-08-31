@@ -1,21 +1,17 @@
 package io.github.vvb2060.ims.privileged
 
 import android.app.Activity
-import android.app.IActivityManager
 import android.app.Instrumentation
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.os.ServiceManager
-import android.system.Os
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
 import android.util.Log
 import io.github.vvb2060.ims.LogcatRepository
 import io.github.vvb2060.ims.model.FiveGPlusConfig
 import rikka.shizuku.Shizuku
-import rikka.shizuku.ShizukuBinderWrapper
 
 class ImsModifier : Instrumentation() {
     companion object Companion {
@@ -170,32 +166,29 @@ class ImsModifier : Instrumentation() {
         }
         Log.i(TAG, "shizuku binder is ready")
 
-        try {
+        val failure = runWithShellPermissionDelegation(TAG) {
             overrideConfig(arguments)
+        }
+        if (failure == null) {
             if (LogcatRepository.isCapturing()) {
                 Log.i(TAG, "overrideConfig success")
             }
             results.putBoolean(BUNDLE_RESULT, true)
-        } catch (t: Throwable) {
+        } else {
             if (LogcatRepository.isCapturing()) {
                 Log.i(TAG, "overrideConfig failed")
             }
-            Log.e(TAG, "failed to override config", t)
+            Log.e(TAG, "failed to override config", failure)
             results.putBoolean(BUNDLE_RESULT, false)
-            results.putString(BUNDLE_RESULT_MSG, t.message ?: t.javaClass.simpleName)
+            results.putString(BUNDLE_RESULT_MSG, failure.toPrivilegedErrorMessage())
         }
         finish(Activity.RESULT_OK, results)
     }
 
     @Throws(Exception::class)
     private fun overrideConfig(arguments: Bundle) {
-        val binder = ServiceManager.getService(Context.ACTIVITY_SERVICE)
-        val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(binder))
-        Log.i(TAG, "starting shell permission delegation")
-        am.startDelegateShellPermissionIdentity(Os.getuid(), null)
-        try {
-            val cm = context.getSystemService(CarrierConfigManager::class.java)
-            val sm = context.getSystemService(SubscriptionManager::class.java)
+        val cm = context.getSystemService(CarrierConfigManager::class.java)
+        val sm = context.getSystemService(SubscriptionManager::class.java)
 
             val selectedSubId = arguments.getInt(BUNDLE_SELECT_SIM_ID, -1)
             arguments.remove(BUNDLE_SELECT_SIM_ID)
@@ -228,10 +221,6 @@ class ImsModifier : Instrumentation() {
                     ).invoke(cm, subId, values)
                 }
             }
-        } finally {
-            am.stopDelegateShellPermissionIdentityCompat()
-            Log.i(TAG, "stopped shell permission delegation")
-        }
     }
 
     @Suppress("UNCHECKED_CAST", "DEPRECATION")

@@ -1,17 +1,13 @@
 package io.github.vvb2060.ims.privileged
 
 import android.app.Activity
-import android.app.IActivityManager
 import android.app.Instrumentation
 import android.content.Context
 import android.os.Bundle
 import android.os.PersistableBundle
-import android.os.ServiceManager
-import android.system.Os
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
 import android.util.Log
-import rikka.shizuku.ShizukuBinderWrapper
 
 class BrokerInstrumentation : Instrumentation() {
     companion object {
@@ -26,10 +22,7 @@ class BrokerInstrumentation : Instrumentation() {
         }
 
         val result = Bundle()
-        val binder = ServiceManager.getService(Context.ACTIVITY_SERVICE)
-        val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(binder))
-        am.startDelegateShellPermissionIdentity(Os.getuid(), null)
-        try {
+        val failure = runWithShellPermissionDelegation(TAG) {
             val cm = context.getSystemService(CarrierConfigManager::class.java)
             val sm = context.getSystemService(SubscriptionManager::class.java)
 
@@ -62,15 +55,17 @@ class BrokerInstrumentation : Instrumentation() {
                     ).invoke(cm, subId, values)
                 }
             }
-            result.putBoolean(ImsModifier.BUNDLE_RESULT, true)
-        } catch (t: Throwable) {
-            Log.e(TAG, "failed to override config", t)
-            result.putBoolean(ImsModifier.BUNDLE_RESULT, false)
-            result.putString(ImsModifier.BUNDLE_RESULT_MSG, t.message ?: t.javaClass.simpleName)
-        } finally {
-            am.stopDelegateShellPermissionIdentityCompat()
         }
-
+        if (failure == null) {
+            result.putBoolean(ImsModifier.BUNDLE_RESULT, true)
+        } else {
+            Log.e(TAG, "failed to override config", failure)
+            result.putBoolean(ImsModifier.BUNDLE_RESULT, false)
+            result.putString(
+                ImsModifier.BUNDLE_RESULT_MSG,
+                failure.toPrivilegedErrorMessage()
+            )
+        }
         finish(Activity.RESULT_OK, result)
     }
 
