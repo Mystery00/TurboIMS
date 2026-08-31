@@ -112,6 +112,8 @@ dependencies {
     implementation(libs.material.icons.extended)
     implementation(libs.androidx.splashscreen)
     implementation(libs.lifecycle.viewmodel.ktx)
+
+    testImplementation(libs.junit)
 }
 
 apply(from = rootProject.file("signing.gradle"))
