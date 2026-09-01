@@ -99,6 +99,7 @@ class MainActivity : BaseActivity() {
         val systemInfo by viewModel.systemInfo.collectAsStateWithLifecycle()
         val shizukuStatus by viewModel.shizukuStatus.collectAsStateWithLifecycle()
         val allSimList by viewModel.allSimList.collectAsStateWithLifecycle()
+        val isOperationInProgress by viewModel.isOperationInProgress.collectAsStateWithLifecycle()
 
         var selectedSim by remember { mutableStateOf<SimSelection?>(null) }
         var showShizukuUpdateDialog by remember { mutableStateOf(false) }
@@ -110,9 +111,7 @@ class MainActivity : BaseActivity() {
             }
         }
         LaunchedEffect(allSimList) {
-            if (selectedSim == null) {
-                selectedSim = allSimList.firstOrNull { it.subId != -1 } ?: allSimList.firstOrNull()
-            }
+            selectedSim = reconcileSelectedSim(selectedSim, allSimList)
         }
         LaunchedEffect(selectedSim) {
             if (selectedSim != null) {
@@ -214,6 +213,7 @@ class MainActivity : BaseActivity() {
                     selectedSim = selectedSim,
                     allSimList = allSimList,
                     shizukuStatus = shizukuStatus,
+                    isOperationInProgress = isOperationInProgress,
                     onSelectSim = { selectedSim = it },
                     onRefreshSimList = {
                         viewModel.loadSimList()
@@ -276,7 +276,7 @@ class MainActivity : BaseActivity() {
                     }
                 )
                 Buttons(
-                    isActionEnabled = selectedSim != null,
+                    isActionEnabled = selectedSim != null && !isOperationInProgress,
                     onApplyConfiguration = {
                         if (shizukuStatus != ShizukuStatus.READY) {
                             Toast.makeText(
@@ -436,6 +436,7 @@ fun SimCardSelectionCard(
     selectedSim: SimSelection?,
     allSimList: List<SimSelection>,
     shizukuStatus: ShizukuStatus,
+    isOperationInProgress: Boolean,
     onSelectSim: (SimSelection) -> Unit,
     onRefreshSimList: () -> Unit,
     onViewSystemConfigClick: () -> Unit,
@@ -501,7 +502,7 @@ fun SimCardSelectionCard(
                     }
                     Button(
                         onClick = onResetIms,
-                        enabled = selectedSim?.subId != -1,
+                        enabled = selectedSim?.subId != -1 && !isOperationInProgress,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                         shape = ButtonGroupDefaults.connectedTrailingButtonShape,
@@ -558,10 +559,7 @@ fun FeaturesCard(
                 }
             }
 
-            val showFeatures = Feature.entries.toMutableList()
-            if (isSelectAllSim) {
-                showFeatures.remove(Feature.CARRIER_NAME)
-            }
+            val showFeatures = visibleFeaturesForSelection(isSelectAllSim)
             showFeatures.forEachIndexed { index, feature ->
                 val title = stringResource(feature.showTitleRes)
                 val description = stringResource(feature.showDescriptionRes)

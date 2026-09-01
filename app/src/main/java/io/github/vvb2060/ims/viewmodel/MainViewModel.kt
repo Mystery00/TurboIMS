@@ -31,6 +31,10 @@ import rikka.shizuku.Shizuku
  */
 class MainViewModel(private val application: Application) : AndroidViewModel(application) {
     private var toast: Toast? = null
+    private val operationGate = OperationGate()
+
+    private val _isOperationInProgress = MutableStateFlow(false)
+    val isOperationInProgress: StateFlow<Boolean> = _isOperationInProgress.asStateFlow()
 
     // 系统信息状态流
     private val _systemInfo = MutableStateFlow(SystemInfo())
@@ -140,7 +144,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      * 此操作会调用 ShizukuProvider 进行特权操作，并保存当前配置到本地。
      */
     fun onApplyConfiguration(selectedSim: SimSelection, map: Map<Feature, FeatureValue>) {
-        viewModelScope.launch {
+        launchExclusiveOperation {
             // 在首次挂起前固定本次应用内容，避免操作期间的 UI 编辑污染成功历史。
             val appliedConfig = map.toMap()
 
@@ -249,7 +253,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      * 重置选中 SIM 卡的配置到运营商默认状态。
      */
     fun onResetConfiguration(selectedSim: SimSelection) {
-        viewModelScope.launch {
+        launchExclusiveOperation {
             val bundle = ImsModifier.buildResetBundle()
             bundle.putInt(ImsModifier.BUNDLE_SELECT_SIM_ID, selectedSim.subId)
             val resultMsg = ShizukuProvider.overrideImsConfig(application, bundle)
@@ -262,7 +266,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
     }
 
     fun onResetIms(simSelection: SimSelection) {
-        viewModelScope.launch {
+        launchExclusiveOperation {
             try {
                 val error = ShizukuProvider.resetIms(application, simSelection.subId)
                 if (error == null) {
@@ -272,6 +276,19 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
                 }
             } catch (e: Exception) {
                 toast(application.getString(R.string.restart_ims_failed, e.localizedMessage), false)
+            }
+        }
+    }
+
+    private fun launchExclusiveOperation(block: suspend () -> Unit) {
+        if (!operationGate.tryEnter()) return
+        _isOperationInProgress.value = true
+        viewModelScope.launch {
+            try {
+                block()
+            } finally {
+                _isOperationInProgress.value = false
+                operationGate.leave()
             }
         }
     }
