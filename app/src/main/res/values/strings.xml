@@ -96,4 +96,23 @@
 
     <!-- Logcat -->
     <string name="title_filter_log_level">Select filter log level</string>
+    <!-- 持久化 VoLTE 即时操作 -->
+    <string name="persistent_volte_title">Persistent VoLTE (Experimental)</string>
+    <string name="persistent_volte_description">Apply immediately to this SIM. On compatible devices and carriers, VoLTE settings can survive a reboot without restarting Shizuku.</string>
+    <string name="persistent_volte_select_sim">Select a single SIM to read or change these settings.</string>
+    <string name="persistent_volte_shizuku_required">Start and authorize Shizuku to read, enable or restore these settings.</string>
+    <string name="persistent_volte_opt_in">VoLTE opt-in</string>
+    <string name="persistent_volte_user_setting">VoLTE user setting</string>
+    <string name="persistent_volte_registration">IMS registered (snapshot)</string>
+    <string name="persistent_volte_unsupported">The required system interface is not supported on this device.</string>
+    <string name="persistent_volte_error">Could not complete the operation or verify all states. Refresh before retrying. Details: %s</string>
+    <string name="persistent_volte_enable">Enable</string>
+    <string name="persistent_volte_restore">Restore original settings</string>
+    <string name="persistent_volte_restore_note">Restore returns both settings to their values before TurboIMS first enabled this feature, including carrier defaults. Reset also restores saved settings for the selected active SIMs. Restore before uninstalling; uninstalling removes recovery records.</string>
+    <string name="persistent_volte_limits">Does not persist VoWiFi, VoNR or 5G SA configuration. Registration and calls still depend on the device and carrier. System updates and SIM changes may affect this feature.</string>
+    <string name="persistent_volte_on">Yes</string>
+    <string name="persistent_volte_off">No</string>
+    <string name="persistent_volte_unknown">Unknown</string>
+    <string name="persistent_volte_applied">VoLTE settings saved and verified. Check actual calls separately.</string>
+    <string name="persistent_volte_restored">Original VoLTE settings restored.</string>
 </resources>

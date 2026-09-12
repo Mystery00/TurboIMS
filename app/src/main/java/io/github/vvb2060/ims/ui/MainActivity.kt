@@ -84,6 +84,7 @@ import io.github.vvb2060.ims.model.ShizukuStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.model.SystemInfo
 import io.github.vvb2060.ims.viewmodel.MainViewModel
+import io.github.vvb2060.ims.ui.components.PersistentVolteCard
 import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity() {
@@ -100,10 +101,17 @@ class MainActivity : BaseActivity() {
         val shizukuStatus by viewModel.shizukuStatus.collectAsStateWithLifecycle()
         val allSimList by viewModel.allSimList.collectAsStateWithLifecycle()
         val isOperationInProgress by viewModel.isOperationInProgress.collectAsStateWithLifecycle()
+        val persistentVolteState by viewModel.persistentVolteState.collectAsStateWithLifecycle()
 
         var selectedSim by remember { mutableStateOf<SimSelection?>(null) }
         var showShizukuUpdateDialog by remember { mutableStateOf(false) }
         val featureSwitches = remember { mutableStateMapOf<Feature, FeatureValue>() }
+
+        LaunchedEffect(selectedSim?.subId, shizukuStatus) {
+            viewModel.selectPersistentVolteSim(
+                selectedSim?.subId?.takeIf { shizukuStatus == ShizukuStatus.READY },
+            )
+        }
 
         LaunchedEffect(shizukuStatus) {
             if (shizukuStatus == ShizukuStatus.NEED_UPDATE) {
@@ -302,6 +310,15 @@ class MainActivity : BaseActivity() {
                         viewModel.onResetConfiguration(currentSim)
                     }
                 )
+                PersistentVolteCard(
+                    state = persistentVolteState?.takeIf { it.subId == selectedSim?.subId },
+                    singleSimSelected = (selectedSim?.subId ?: -1) >= 0,
+                    shizukuReady = shizukuStatus == ShizukuStatus.READY,
+                    busy = isOperationInProgress,
+                    onEnable = { selectedSim?.let { viewModel.onPersistentVolteChange(it.subId, restore = false) } },
+                    onRestore = { selectedSim?.let { viewModel.onPersistentVolteChange(it.subId, restore = true) } },
+                    onRefresh = viewModel::refreshPersistentVolte,
+                )
                 Tips()
                 Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
 
@@ -317,6 +334,7 @@ class MainActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.updateShizukuStatus()
+        viewModel.refreshPersistentVolte()
     }
 }
 

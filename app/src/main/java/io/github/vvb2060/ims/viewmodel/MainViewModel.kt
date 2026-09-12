@@ -13,12 +13,14 @@ import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.ShizukuProvider
 import io.github.vvb2060.ims.model.Feature
 import io.github.vvb2060.ims.model.ImsCapabilityStatus
+import io.github.vvb2060.ims.model.PersistentVolteState
 import io.github.vvb2060.ims.model.FeatureValue
 import io.github.vvb2060.ims.model.FeatureValueType
 import io.github.vvb2060.ims.model.ShizukuStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.model.SystemInfo
 import io.github.vvb2060.ims.privileged.ImsModifier
+import io.github.vvb2060.ims.privileged.PersistentVolteModifier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,6 +37,52 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
 
     private val _isOperationInProgress = MutableStateFlow(false)
     val isOperationInProgress: StateFlow<Boolean> = _isOperationInProgress.asStateFlow()
+
+    private val _persistentVolteState = MutableStateFlow<PersistentVolteState?>(null)
+    val persistentVolteState = _persistentVolteState.asStateFlow()
+    private var persistentVolteSubId: Int? = null
+    private var pendingPersistentRefresh = false
+
+    fun selectPersistentVolteSim(subId: Int?) {
+        persistentVolteSubId = subId?.takeIf { it >= 0 }
+        _persistentVolteState.value = persistentVolteSubId?.let { PersistentVolteState(it) }
+        refreshPersistentVolte()
+    }
+
+    fun refreshPersistentVolte() {
+        val subId = persistentVolteSubId ?: return
+        if (_shizukuStatus.value != ShizukuStatus.READY) return
+        if (_isOperationInProgress.value) {
+            pendingPersistentRefresh = true
+            return
+        }
+        launchExclusiveOperation {
+            publishPersistentVolte(ShizukuProvider.persistentVolte(application, subId, PersistentVolteModifier.QUERY))
+        }
+    }
+
+    fun onPersistentVolteChange(subId: Int, restore: Boolean) {
+        if (subId < 0 || subId != persistentVolteSubId || _shizukuStatus.value != ShizukuStatus.READY) return
+        launchExclusiveOperation {
+            val result = ShizukuProvider.persistentVolte(
+                application, subId,
+                if (restore) PersistentVolteModifier.RESTORE else PersistentVolteModifier.ENABLE,
+            )
+            publishPersistentVolte(result)
+            if (result.error == null) {
+                toast(application.getString(if (restore) R.string.persistent_volte_restored else R.string.persistent_volte_applied))
+            } else {
+                toast(application.getString(R.string.config_failed, result.error), false)
+            }
+        }
+    }
+
+    private fun publishPersistentVolte(state: PersistentVolteState) {
+        // 异步结果只更新对应的当前 SIM；Shizuku 断开后不再展示旧快照。
+        if (state.subId == persistentVolteSubId && _shizukuStatus.value == ShizukuStatus.READY) {
+            _persistentVolteState.value = state
+        }
+    }
 
     // 系统信息状态流
     private val _systemInfo = MutableStateFlow(SystemInfo())
@@ -254,6 +302,14 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      */
     fun onResetConfiguration(selectedSim: SimSelection) {
         launchExclusiveOperation {
+            val restored = ShizukuProvider.persistentVolte(
+                application, selectedSim.subId, PersistentVolteModifier.RESTORE_FOR_RESET,
+            )
+            pendingPersistentRefresh = true
+            if (restored.error != null) {
+                toast(application.getString(R.string.config_failed, restored.error), false)
+                return@launchExclusiveOperation
+            }
             val bundle = ImsModifier.buildResetBundle()
             bundle.putInt(ImsModifier.BUNDLE_SELECT_SIM_ID, selectedSim.subId)
             val resultMsg = ShizukuProvider.overrideImsConfig(application, bundle)
@@ -289,6 +345,10 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
             } finally {
                 _isOperationInProgress.value = false
                 operationGate.leave()
+                if (pendingPersistentRefresh) {
+                    pendingPersistentRefresh = false
+                    refreshPersistentVolte()
+                }
             }
         }
     }

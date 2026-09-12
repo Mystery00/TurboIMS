@@ -5,11 +5,13 @@ import android.app.IInstrumentationWatcher
 import android.app.UiAutomationConnection
 import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.ServiceManager
 import android.telephony.SubscriptionInfo
 import android.util.Log
 import io.github.vvb2060.ims.model.ImsCapabilityStatus
+import io.github.vvb2060.ims.model.PersistentVolteState
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.privileged.BrokerInstrumentation
 import io.github.vvb2060.ims.privileged.isCarrierConfigPermissionError
@@ -17,8 +19,13 @@ import io.github.vvb2060.ims.privileged.ImsCapabilityReader
 import io.github.vvb2060.ims.privileged.ImsModifier
 import io.github.vvb2060.ims.privileged.ImsResetter
 import io.github.vvb2060.ims.privileged.SimReader
+import io.github.vvb2060.ims.privileged.PersistentVolteModifier
+import io.github.vvb2060.ims.privileged.toPrivilegedErrorMessage
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.lsposed.hiddenapibypass.LSPass
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.ShizukuProvider
@@ -33,6 +40,41 @@ class ShizukuProvider : ShizukuProvider() {
     companion object {
         private const val TAG = "ShizukuProvider"
         private const val INSTRUMENTATION_TIMEOUT_MS = 15_000L
+        private val instrumentationMutex = Mutex()
+        private var activeInstrumentation: CompletableDeferred<Bundle?>? = null
+
+        suspend fun persistentVolte(context: Context, subId: Int, action: String): PersistentVolteState {
+            try {
+                check(rikka.shizuku.Shizuku.pingBinder()) { "Shizuku binder is unavailable" }
+                check(!rikka.shizuku.Shizuku.isPreV11()) { "Shizuku update required" }
+                check(rikka.shizuku.Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+                    "Shizuku permission is not granted"
+                }
+                val args = Bundle().apply {
+                    putInt(PersistentVolteModifier.SUB_ID, subId)
+                    putString(PersistentVolteModifier.ACTION, action)
+                }
+                val result = startInstrumentation(context, PersistentVolteModifier::class.java, args, true)
+                    ?: return PersistentVolteState(subId, error = "No result; refresh state before retrying")
+                fun readBoolean(key: String): Boolean? =
+                    if (result.containsKey(key)) result.getBoolean(key) else null
+                return PersistentVolteState(
+                    subId = subId,
+                    optIn = readBoolean(PersistentVolteModifier.OPT_IN),
+                    userEnabled = readBoolean(PersistentVolteModifier.USER_ENABLED),
+                    imsRegistered = readBoolean(PersistentVolteModifier.IMS_REGISTERED),
+                    canRestore = result.getBoolean(PersistentVolteModifier.CAN_RESTORE),
+                    unsupported = result.getBoolean(PersistentVolteModifier.UNSUPPORTED),
+                    error = result.getString(PersistentVolteModifier.ERROR)
+                        ?: if (!result.getBoolean(PersistentVolteModifier.COMPLETED)) "Incomplete instrumentation result" else null,
+                )
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (t: Throwable) {
+                Log.e(TAG, "Persistent VoLTE request failed", t)
+                return PersistentVolteState(subId, error = t.toPrivilegedErrorMessage())
+            }
+        }
 
         suspend fun overrideImsConfig(context: Context, data: Bundle): String? {
             val primaryArgs = Bundle(data)
@@ -133,6 +175,28 @@ class ShizukuProvider : ShizukuProvider() {
             cls: Class<*>,
             args: Bundle?,
             receiveResult: Boolean,
+        ): Bundle? = instrumentationMutex.withLock {
+            // 新入口使用工作线程，所有 Instrumentation 必须串行，避免 UID 权限委托互相清理。
+            // 超时或协程取消不代表设备端操作结束；旧 watcher 返回前不启动下一次操作。
+            val previous = activeInstrumentation
+            if (previous != null && !previous.isCompleted) {
+                val finished = withTimeoutOrNull(INSTRUMENTATION_TIMEOUT_MS) {
+                    previous.await()
+                    true
+                } ?: false
+                if (!finished) {
+                    Log.w(TAG, "Previous instrumentation is still running")
+                    return@withLock null
+                }
+            }
+            startInstrumentationLocked(context, cls, args, receiveResult)
+        }
+
+        private suspend fun startInstrumentationLocked(
+            context: Context,
+            cls: Class<*>,
+            args: Bundle?,
+            receiveResult: Boolean,
         ): Bundle? {
             val deferredResult = CompletableDeferred<Bundle?>()
             var watcher: IInstrumentationWatcher.Stub? = null
@@ -178,6 +242,7 @@ class ShizukuProvider : ShizukuProvider() {
                 }
                 Log.i(TAG, "instrumentation started successfully")
                 if (receiveResult) {
+                    activeInstrumentation = deferredResult
                     val result = withTimeoutOrNull(INSTRUMENTATION_TIMEOUT_MS) {
                         deferredResult.await()
                     }
@@ -187,6 +252,8 @@ class ShizukuProvider : ShizukuProvider() {
                     return result
                 }
                 return null
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.e(TAG, "failed to start instrumentation", e)
                 return null

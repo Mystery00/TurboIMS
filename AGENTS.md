@@ -78,6 +78,7 @@ TurboIMS 是一个面向 Google Pixel Tensor 设备的 Android 应用，用于�
 - `ImsCapabilityReader`：读取 IMS 注册状态和 VoLTE/VoWiFi/VoNR/VT/NR 能力状态。
 - `ImsModifier`：写入或重置运营商配置覆盖值。
 - `ImsResetter`：调用 telephony service 重置 IMS。
+- `PersistentVolteModifier`：按单张 SIM 读写持久化 VoLTE，使用 VoIMS opt-in 和用户开关；复用统一权限委托，通过系统管理类反射访问隐藏 API。
 - `BrokerInstrumentation`：在主修改路径权限受限或返回空结果时作为 fallback。
 - `ShellPermissionDelegation`：统一处理 shell permission delegation 停止调用的 Android 版本兼容。
 
@@ -101,6 +102,7 @@ TurboIMS 是一个面向 Google Pixel Tensor 设备的 Android 应用，用于�
 
 - SIM 配置按 `subId` 持久化到 `SharedPreferences`，名称形如 `sim_config_<subId>`。
 - `subId = -1` 表示应用到所有 SIM。
+- 持久化 VoLTE 是独立的即时操作，不属于 `Feature` 配置草稿。原始订阅值（含 -1）保存在 `noBackupFilesDir/persistent_volte_<subId>.json`，以 SIM 标识摘要校验；失败回退失败时保留记录供恢复。重置配置先恢复所选活动 SIM 的原始值，再清除 CarrierConfig；未激活 SIM 的备份保留至重新激活后恢复。
 - `Feature` 和 `FeatureConfigMapper` 是 IMS 功能开关到运营商配置键的主要映射入口。
 - 修改运营商配置时优先走 `ImsModifier`，必要时再由 `ShizukuProvider` 触发 `BrokerInstrumentation` fallback。
 - UI 不直接执行业务写入逻辑，业务动作应放在 ViewModel 或特权入口中。

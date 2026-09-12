@@ -61,4 +61,8 @@
         android:name=".privileged.ImsResetter"
         android:label="ImsResetter"
         android:targetPackage="${applicationId}" />
+    <instrumentation
+        android:name=".privileged.PersistentVolteModifier"
+        android:label="PersistentVolteModifier"
+        android:targetPackage="${applicationId}" />
 </manifest>
