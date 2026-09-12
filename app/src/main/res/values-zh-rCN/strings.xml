@@ -98,7 +98,8 @@
     <string name="title_filter_log_level">请选择日志过滤等级</string>
     <!-- 持久化 VoLTE 即时操作 -->
     <string name="persistent_volte_title">持久化 VoLTE（实验性）</string>
-    <string name="persistent_volte_description">对当前 SIM 立即生效。在兼容设备和运营商上，重启后无需重新启动 Shizuku 即可保留 VoLTE 开启设置。</string>
+    <string name="persistent_volte_description">启用后立即对当前 SIM 生效。在兼容设备和运营商上，正常重启后无需启动 Shizuku 或打开 TurboIMS，即可继续使用 VoLTE。</string>
+    <string name="persistent_volte_usage">启用后仍可使用“应用配置”开启 5G 等功能，无需特意取消勾选 VoLTE。</string>
     <string name="persistent_volte_select_sim">请选择单张 SIM 读取或修改此设置。</string>
     <string name="persistent_volte_shizuku_required">读取、启用和恢复设置需要先启动并授权 Shizuku。</string>
     <string name="persistent_volte_opt_in">VoLTE 主动启用</string>
@@ -108,11 +109,12 @@
     <string name="persistent_volte_error">操作未完成或部分状态无法确认，请先刷新再重试。详情：%s</string>
     <string name="persistent_volte_enable">启用</string>
     <string name="persistent_volte_restore">恢复原设置</string>
-    <string name="persistent_volte_restore_note">恢复到 TurboIMS 首次启用此功能前的两个设置，包括跟随运营商默认值。“重置”也会恢复所选活动 SIM 的已备份设置。请先恢复再卸载；卸载会删除恢复记录。</string>
-    <string name="persistent_volte_limits">不保留 VoWiFi、VoNR 或 5G SA 配置；注册和通话仍取决于设备及运营商。系统更新、换卡可能影响效果。</string>
+    <string name="persistent_volte_restore_note">“恢复原设置”会恢复到首次启用前的 VoLTE 设置，不一定会关闭 VoLTE。“重置配置”也会恢复所选活动 SIM 的已备份设置。请先恢复再卸载；卸载或清除应用数据会删除恢复记录。</string>
+    <string name="persistent_volte_limits">本功能仅保留 VoLTE 开启设置。通过“应用配置”开启的 5G、VoWiFi、VoNR 等额外配置，重启后仍需启动 Shizuku 并重新应用。实际通话取决于设备、运营商及网络。</string>
+    <string name="persistent_volte_update_note">系统更新或换卡后，VoLTE 设置可能被重置。若通话失效，请启动并授权 Shizuku，选择对应 SIM，重新点击“启用”并验证通话。</string>
     <string name="persistent_volte_on">是</string>
     <string name="persistent_volte_off">否</string>
     <string name="persistent_volte_unknown">未知</string>
-    <string name="persistent_volte_applied">VoLTE 设置已保存并回读确认，请另行验证实际通话。</string>
+    <string name="persistent_volte_applied">已启用，请在重启后验证 VoLTE 通话是否正常。</string>
     <string name="persistent_volte_restored">已恢复原来的 VoLTE 设置。</string>
 </resources>

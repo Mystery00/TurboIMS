@@ -98,7 +98,8 @@
     <string name="title_filter_log_level">Select filter log level</string>
     <!-- 持久化 VoLTE 即时操作 -->
     <string name="persistent_volte_title">Persistent VoLTE (Experimental)</string>
-    <string name="persistent_volte_description">Apply immediately to this SIM. On compatible devices and carriers, VoLTE settings can survive a reboot without restarting Shizuku.</string>
+    <string name="persistent_volte_description">Takes effect immediately for this SIM. On compatible devices and carriers, VoLTE remains usable after a normal restart without starting Shizuku or opening TurboIMS.</string>
+    <string name="persistent_volte_usage">You can still use Apply to enable 5G and other features. There is no need to uncheck VoLTE.</string>
     <string name="persistent_volte_select_sim">Select a single SIM to read or change these settings.</string>
     <string name="persistent_volte_shizuku_required">Start and authorize Shizuku to read, enable or restore these settings.</string>
     <string name="persistent_volte_opt_in">VoLTE opt-in</string>
@@ -108,11 +109,12 @@
     <string name="persistent_volte_error">Could not complete the operation or verify all states. Refresh before retrying. Details: %s</string>
     <string name="persistent_volte_enable">Enable</string>
     <string name="persistent_volte_restore">Restore original settings</string>
-    <string name="persistent_volte_restore_note">Restore returns both settings to their values before TurboIMS first enabled this feature, including carrier defaults. Reset also restores saved settings for the selected active SIMs. Restore before uninstalling; uninstalling removes recovery records.</string>
-    <string name="persistent_volte_limits">Does not persist VoWiFi, VoNR or 5G SA configuration. Registration and calls still depend on the device and carrier. System updates and SIM changes may affect this feature.</string>
+    <string name="persistent_volte_restore_note">Restore original settings returns VoLTE settings to their values before this feature was first enabled; it does not necessarily turn VoLTE off. Reset also restores saved settings for the selected active SIMs. Restore before uninstalling; uninstalling or clearing app data removes recovery records.</string>
+    <string name="persistent_volte_limits">This feature only preserves VoLTE settings. Extra 5G, VoWiFi and VoNR configuration set through Apply still needs Shizuku and must be applied again after a restart. Actual calls depend on the device, carrier and network.</string>
+    <string name="persistent_volte_update_note">System updates or SIM changes may reset VoLTE settings. If calls stop working, start and authorize Shizuku, select the affected SIM, enable this feature again and test a call.</string>
     <string name="persistent_volte_on">Yes</string>
     <string name="persistent_volte_off">No</string>
     <string name="persistent_volte_unknown">Unknown</string>
-    <string name="persistent_volte_applied">VoLTE settings saved and verified. Check actual calls separately.</string>
+    <string name="persistent_volte_applied">Enabled. Restart your phone and verify that VoLTE calls work.</string>
     <string name="persistent_volte_restored">Original VoLTE settings restored.</string>
 </resources>

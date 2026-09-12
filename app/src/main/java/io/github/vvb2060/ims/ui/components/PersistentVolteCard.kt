@@ -35,6 +35,7 @@ fun PersistentVolteCard(
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(stringResource(R.string.persistent_volte_title), fontWeight = FontWeight.Bold)
             Text(stringResource(R.string.persistent_volte_description), style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.persistent_volte_usage), style = MaterialTheme.typography.bodySmall)
             when {
                 !singleSimSelected -> Text(stringResource(R.string.persistent_volte_select_sim))
                 !shizukuReady -> Text(stringResource(R.string.persistent_volte_shizuku_required))
@@ -65,6 +66,8 @@ fun PersistentVolteCard(
             TextButton(onClick = onRefresh, enabled = canOperate) { Text(stringResource(R.string.refresh)) }
             Text(stringResource(R.string.persistent_volte_restore_note), style = MaterialTheme.typography.bodySmall)
             Text(stringResource(R.string.persistent_volte_limits),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+            Text(stringResource(R.string.persistent_volte_update_note),
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
         }
     }
