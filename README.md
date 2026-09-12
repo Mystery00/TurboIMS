@@ -1,7 +1,14 @@
-# TurboIMS
+# TensorIMS
+
+> **聚焦中国大陆运营商网络下的 Google Pixel IMS 配置，由 Mystery00 独立维护。**
+> 原 **Mystery00/TurboIMS**，现更名为 **TensorIMS**。仅支持搭载 Google Tensor 芯片的 Pixel 设备，需 Android 13+ 和 Shizuku。
+>
+> 主要适配和维护范围为中国移动、中国联通、中国电信网络下的使用场景。其他运营商因缺少相应设备、SIM 卡及网络测试条件，不作为主要适配和维护对象；这不表示其他网络一定无法使用，实际兼容性需自行验证。
+
+[下载最新版](https://github.com/Mystery00/TensorIMS/releases/latest) · [项目主页](https://pixel.mystery0.app) · [中文使用说明](README_CN.md) · [问题反馈](https://github.com/Mystery00/TensorIMS/issues)
 
 <p align="center">
-  <img src="app/src/main/ic_launcher-playstore.png" width="200" alt="TurboIMS Logo"/>
+  <img src="app/src/main/ic_launcher-playstore.png" width="200" alt="TensorIMS Logo"/>
 </p>
 
 <p align="center">
@@ -9,9 +16,9 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/Mystery00/TurboIMS/releases"><img src="https://img.shields.io/github/v/release/Mystery00/TurboIMS" alt="GitHub release"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/github/license/Mystery00/TurboIMS" alt="License"></a>
-    <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Mystery00/TurboIMS"><img src="https://img.shields.io/badge/Obtainium-Import-blue?logo=obtainium&logoColor=white" alt="Obtainium"></a>
+    <a href="https://github.com/Mystery00/TensorIMS/releases"><img src="https://img.shields.io/github/v/release/Mystery00/TensorIMS" alt="GitHub release"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/Mystery00/TensorIMS" alt="License"></a>
+    <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Mystery00/TensorIMS"><img src="https://img.shields.io/badge/Obtainium-Import-blue?logo=obtainium&logoColor=white" alt="Obtainium"></a>
 </p>
 
 [简体中文](README_CN.md)
@@ -25,7 +32,7 @@
 
 ## About
 
-TurboIMS is a tool that allows you to enable or disable IMS features like Voice over LTE (VoLTE), Wi-Fi Calling (VoWiFi), Video Calling (VT), and 5G Voice (VoNR) on Google Pixel phones. It requires [Shizuku](https://shizuku.rikka.app/) to work.
+TensorIMS is a tool that allows you to enable or disable IMS features like Voice over LTE (VoLTE), Wi-Fi Calling (VoWiFi), Video Calling (VT), and 5G Voice (VoNR) on Google Pixel phones. It requires [Shizuku](https://shizuku.rikka.app/) to work.
 
 ## Features
 
@@ -46,7 +53,7 @@ TurboIMS is a tool that allows you to enable or disable IMS features like Voice 
     - **5G Signal Strength Thresholds**: Option to apply custom 5G signal strength thresholds.
 - **Configuration Persistence**: Automatically saves configuration per SIM card.
 
-> **Note:** Country ISO customization has been removed from TurboIMS. If you need this feature, please use [carrier-ims-for-pixel](https://github.com/ryfineZ/carrier-ims-for-pixel).
+> **Note:** Country ISO customization has been removed from TensorIMS. If you need this feature, please use [carrier-ims-for-pixel](https://github.com/ryfineZ/carrier-ims-for-pixel).
 
 ## Requirements
 
@@ -63,9 +70,9 @@ TurboIMS is a tool that allows you to enable or disable IMS features like Voice 
 
 ## Installation
 
-<a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Mystery00/TurboIMS"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png" alt="Obtainium" height="96"></a>
+<a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Mystery00/TensorIMS"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png" alt="Obtainium" height="96"></a>
 
-1.  Download the latest APK from the [Releases](https://github.com/Mystery00/TurboIMS/releases) page.
+1.  Download the latest APK from the [Releases](https://github.com/Mystery00/TensorIMS/releases) page.
 2.  Install the APK on your device.
 3.  Open the app and grant Shizuku permission.
 
@@ -81,7 +88,9 @@ TurboIMS is a tool that allows you to enable or disable IMS features like Voice 
 
 This project originated as a fork of [Turbo1123/TurboIMS](https://github.com/Turbo1123/TurboIMS). However, due to various stability issues encountered during usage, the codebase has undergone a complete refactoring. This includes rewriting the core logic for SIM card reading and carrier configuration, as well as redesigning the UI and icons.
 
-Major new features, such as **Carrier Name modification** and **Logcat viewer**, have also been introduced. Although the project retains the original name and fork history, the code has diverged significantly, and there are no plans to merge upstream changes. As an active user myself along with friends, I am committed to maintaining this project for as long as it serves a purpose.
+本项目此前以 **Mystery00/TurboIMS** 的名称发布，现以 **TensorIMS** 继续独立维护，后续不计划合并上游代码。更名仅针对本维护版本；GitHub 上保留原有 fork 关系及来源说明。
+
+应用包名与签名配置保持不变，已安装本维护版本的用户可通过相同签名的新版本覆盖升级。使用 Obtainium 的用户可将来源更新为本仓库；如设置了 APK 文件名过滤条件，请同步调整为 TensorIMS。
 
 ## Credits
 

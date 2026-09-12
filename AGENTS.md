@@ -11,7 +11,11 @@
 
 ## 项目概览
 
-TurboIMS 是一个面向 Google Pixel Tensor 设备的 Android 应用，用于读取和修改 IMS/运营商相关配置，开启或关闭 VoLTE、VoWiFi、VT、VoNR、Cross-SIM Calling、UT、5G NR 等功能。项目依赖 Shizuku 执行特权操作，不要求 root。
+TensorIMS 是一个面向 Google Pixel Tensor 设备的 Android 应用，用于读取和修改 IMS/运营商相关配置，开启或关闭 VoLTE、VoWiFi、VT、VoNR、Cross-SIM Calling、UT、5G NR 等功能。项目依赖 Shizuku 执行特权操作，不要求 root。
+
+主要适配和维护范围为中国大陆的中国移动、中国联通、中国电信网络下的 Pixel Tensor 设备。其他运营商因缺少相应测试条件，不作为主要适配和维护对象。此约定限定维护范围，不代表需要在代码中按地区或运营商限制使用，也不保证所有机型、系统版本和网络功能均可用。
+
+项目原名为 Mystery00/TurboIMS，现由 Mystery00 以 TensorIMS 名称独立维护。仓库地址为 `https://github.com/Mystery00/TensorIMS`，项目主页为 `https://pixel.mystery0.app`。为兼容已有用户覆盖升级，保留应用包名 `io.github.vvb2060.ims` 与现有签名配置；历史文档及上游仓库名称不随更名改写。
 
 应用主要面向 Android 13 及以上系统，当前构建目标为 Android SDK 37。设备侧功能验证应优先在已安装并运行 Shizuku 的真实 Pixel 设备上完成。
 

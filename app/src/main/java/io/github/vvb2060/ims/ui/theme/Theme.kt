@@ -101,7 +101,7 @@ fun selectColorSchemeSource(darkTheme: Boolean, dynamicColor: Boolean): ColorSch
 }
 
 @Composable
-fun TurbolImsTheme(
+fun TensorIMSTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit

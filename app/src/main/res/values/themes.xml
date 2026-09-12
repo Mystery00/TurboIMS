@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.TurbolIms" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.TensorIMS" parent="android:Theme.Material.Light.NoActionBar" />
 
     <!-- jetpack core splashscreen -->
     <style name="JetpackSplashBaseTheme" parent="Theme.SplashScreen">
@@ -13,7 +13,7 @@
 
         <!-- 需要配置postSplashScreenTheme属性，主题需要是AppCompat -->
         <!-- 否则会报异常：You need to use a Theme.AppCompat theme (or descendant) with this activity -->
-        <item name="postSplashScreenTheme">@style/Theme.TurbolIms</item>
+        <item name="postSplashScreenTheme">@style/Theme.TensorIMS</item>
     </style>
 
     <style name="JetpackSplashTheme" parent="JetpackSplashBaseTheme" />

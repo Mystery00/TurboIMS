@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TurbolIms"
+rootProject.name = "TensorIMS"
 include(":app")
 include(":stub")

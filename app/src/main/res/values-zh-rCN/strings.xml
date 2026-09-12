@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Turbo IMS</string>
-    <string name="for_pixel">forked by Mystery0</string>
+    <string name="app_name">TensorIMS</string>
+    <string name="for_pixel">由 Mystery0 维护</string>
 
     <!-- Main Screen -->
     <string name="system_info">系统信息</string>
@@ -98,7 +98,7 @@
     <string name="title_filter_log_level">请选择日志过滤等级</string>
     <!-- 持久化 VoLTE 即时操作 -->
     <string name="persistent_volte_title">持久化 VoLTE（实验性）</string>
-    <string name="persistent_volte_description">启用后立即对当前 SIM 生效。在兼容设备和运营商上，正常重启后无需启动 Shizuku 或打开 TurboIMS，即可继续使用 VoLTE。</string>
+    <string name="persistent_volte_description">启用后立即对当前 SIM 生效。在兼容设备和运营商上，正常重启后无需启动 Shizuku 或打开 TensorIMS，即可继续使用 VoLTE。</string>
     <string name="persistent_volte_usage">启用后仍可使用“应用配置”开启 5G 等功能，无需特意取消勾选 VoLTE。</string>
     <string name="persistent_volte_select_sim">请选择单张 SIM 读取或修改此设置。</string>
     <string name="persistent_volte_shizuku_required">读取、启用和恢复设置需要先启动并授权 Shizuku。</string>

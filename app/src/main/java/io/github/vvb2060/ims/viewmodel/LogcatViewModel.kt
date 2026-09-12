@@ -39,7 +39,7 @@ class LogcatViewModel(application: Application) : AndroidViewModel(application) 
                 val file = withContext(Dispatchers.IO) {
                     // 每次分享对应独立文件，后续导出不能覆盖已经交给其他应用的内容。
                     val directory = application.externalCacheDir ?: application.cacheDir
-                    File.createTempFile("turbo_ims_", ".log", directory).apply {
+                    File.createTempFile("tensor_ims_", ".log", directory).apply {
                         bufferedWriter().use { writer ->
                             writer.appendLine("App Version: ${BuildConfig.VERSION_NAME}")
                             writer.appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL}")
@@ -47,7 +47,7 @@ class LogcatViewModel(application: Application) : AndroidViewModel(application) 
                             writer.appendLine("System Build Version: ${Build.DISPLAY}")
                             writer.appendLine("Security Patch Version: ${Build.VERSION.SECURITY_PATCH}")
                             writer.appendLine("-----------------------------------------------------------------")
-                            writer.appendLine("TurboIms Logcat:")
+                            writer.appendLine("TensorIMS Logcat:")
                             snapshot.forEach { writer.appendLine(it.raw) }
                         }
                     }
