@@ -17,6 +17,15 @@
     <string name="shizuku_checking">检查中…</string>
     <string name="refresh_permission">刷新权限</string>
     <string name="request_permission">请求权限</string>
+    <string name="auto_restore_title">Shizuku 就绪后自动应用配置</string>
+    <string name="auto_restore_description">默认关闭。启用后，在 Shizuku 启动并连接本应用、且获得授权后，自动应用已保存的配置；未授权时会请求授权。仅重启设备不会触发配置应用，需要先启动 Shizuku 并完成授权。不包含持久化 VoLTE。</string>
+    <string name="auto_restore_result_success">已自动应用 %1$d 张 SIM 的配置</string>
+    <string name="auto_restore_result_failed">%1$d 张 SIM 自动应用失败，请打开应用查看日志</string>
+    <string name="auto_restore_result_partial">自动应用：%1$d 张 SIM 成功，%2$d 张失败</string>
+    <string name="auto_restore_notification_title">自动应用配置结果</string>
+    <string name="auto_restore_notification_channel">自动应用配置结果</string>
+    <string name="auto_restore_notification_unavailable">通知未开启。若 Toast 未能显示，将无法通过通知提示自动应用结果。</string>
+    <string name="auto_restore_notification_settings">开启结果通知</string>
     <string name="view_system_config">查看 IMS</string>
     <string name="restart_ims">重启 IMS</string>
     <string name="restart_ims_success">IMS 已重启</string>

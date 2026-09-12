@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 class OperationGate {
     private val occupied = AtomicBoolean(false)
+    val isOccupied: Boolean get() = occupied.get()
 
     fun tryEnter(): Boolean = occupied.compareAndSet(false, true)
 

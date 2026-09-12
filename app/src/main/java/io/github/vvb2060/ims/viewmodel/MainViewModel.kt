@@ -1,26 +1,27 @@
 package io.github.vvb2060.ims.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
-import androidx.core.content.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.vvb2060.ims.BuildConfig
+import io.github.vvb2060.ims.ConfigurationOperations
+import io.github.vvb2060.ims.ConfigurationRepository
 import io.github.vvb2060.ims.R
 import io.github.vvb2060.ims.ShizukuProvider
 import io.github.vvb2060.ims.model.Feature
 import io.github.vvb2060.ims.model.ImsCapabilityStatus
 import io.github.vvb2060.ims.model.PersistentVolteState
 import io.github.vvb2060.ims.model.FeatureValue
-import io.github.vvb2060.ims.model.FeatureValueType
 import io.github.vvb2060.ims.model.ShizukuStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.model.SystemInfo
 import io.github.vvb2060.ims.privileged.ImsModifier
 import io.github.vvb2060.ims.privileged.PersistentVolteModifier
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,8 +36,12 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
     private var toast: Toast? = null
     private val operationGate = OperationGate()
 
-    private val _isOperationInProgress = MutableStateFlow(false)
-    val isOperationInProgress: StateFlow<Boolean> = _isOperationInProgress.asStateFlow()
+    private val autoRestore = (application as io.github.vvb2060.ims.Application).autoRestore
+    private val configurations = autoRestore.repository
+    val autoRestoreEnabled = autoRestore.enabled
+    val isOperationInProgress = ConfigurationOperations.busy
+
+    fun setAutoRestoreEnabled(enabled: Boolean) = autoRestore.setEnabled(enabled)
 
     private val _persistentVolteState = MutableStateFlow<PersistentVolteState?>(null)
     val persistentVolteState = _persistentVolteState.asStateFlow()
@@ -52,7 +57,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
     fun refreshPersistentVolte() {
         val subId = persistentVolteSubId ?: return
         if (_shizukuStatus.value != ShizukuStatus.READY) return
-        if (_isOperationInProgress.value) {
+        if (isOperationInProgress.value) {
             pendingPersistentRefresh = true
             return
         }
@@ -100,7 +105,20 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
     private val binderListener = Shizuku.OnBinderReceivedListener { updateShizukuStatus() }
     private val binderDeadListener = Shizuku.OnBinderDeadListener { updateShizukuStatus() }
 
+    private val permissionListener = Shizuku.OnRequestPermissionResultListener { _, _ ->
+        updateShizukuStatus()
+        // 回调与服务断开可能相邻发生，读卡入口统一处理 Binder 失效和权限错误。
+        loadSimList()
+    }
+
     init {
+        viewModelScope.launch {
+            ConfigurationOperations.busy.collect { busy ->
+                if (!busy) drainPendingPersistentRefresh()
+            }
+        }
+        Shizuku.addRequestPermissionResultListener(permissionListener)
+        autoRestore.schedule()
         loadSimList()
         loadSystemInfo()
         updateShizukuStatus()
@@ -110,6 +128,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
 
     override fun onCleared() {
         super.onCleared()
+        Shizuku.removeRequestPermissionResultListener(permissionListener)
         Shizuku.removeBinderReceivedListener(binderListener)
         Shizuku.removeBinderDeadListener(binderDeadListener)
     }
@@ -120,14 +139,16 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      */
     fun updateShizukuStatus() {
         viewModelScope.launch {
-            if (Shizuku.isPreV11()) {
-                _shizukuStatus.value = ShizukuStatus.NEED_UPDATE
-                return@launch
-            }
-            _shizukuStatus.value = when {
-                !Shizuku.pingBinder() -> ShizukuStatus.NOT_RUNNING
-                Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuStatus.NO_PERMISSION
-                else -> ShizukuStatus.READY
+            _shizukuStatus.value = try {
+                when {
+                    !Shizuku.pingBinder() -> ShizukuStatus.NOT_RUNNING
+                    Shizuku.isPreV11() -> ShizukuStatus.NEED_UPDATE
+                    Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED -> ShizukuStatus.NO_PERMISSION
+                    else -> ShizukuStatus.READY
+                }
+            } catch (e: Exception) {
+                Log.w("MainViewModel", "Failed to check Shizuku status", e)
+                ShizukuStatus.NOT_RUNNING
             }
         }
     }
@@ -137,10 +158,15 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      */
     fun requestShizukuPermission(requestCode: Int) {
         viewModelScope.launch {
-            if (Shizuku.isPreV11()) {
-                _shizukuStatus.value = ShizukuStatus.NEED_UPDATE
-            } else {
-                Shizuku.requestPermission(requestCode)
+            try {
+                when {
+                    !Shizuku.pingBinder() -> _shizukuStatus.value = ShizukuStatus.NOT_RUNNING
+                    Shizuku.isPreV11() -> _shizukuStatus.value = ShizukuStatus.NEED_UPDATE
+                    else -> autoRestore.requestPermission(requestCode)
+                }
+            } catch (e: Exception) {
+                Log.w("MainViewModel", "Failed to request Shizuku permission", e)
+                updateShizukuStatus()
             }
         }
     }
@@ -192,53 +218,20 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
      * 此操作会调用 ShizukuProvider 进行特权操作，并保存当前配置到本地。
      */
     fun onApplyConfiguration(selectedSim: SimSelection, map: Map<Feature, FeatureValue>) {
+        // 排队等待自动恢复前就固定本次应用内容，避免等待期间的 UI 编辑污染成功历史。
+        val appliedConfig = map.toMap()
         launchExclusiveOperation {
-            // 在首次挂起前固定本次应用内容，避免操作期间的 UI 编辑污染成功历史。
-            val appliedConfig = map.toMap()
-
-            // 构建传递给底层 ImsModifier 的配置 Bundle
-            val carrierName =
-                if (selectedSim.subId == -1) null else appliedConfig[Feature.CARRIER_NAME]?.data as String?
-            val imsUserAgent =
-                if (selectedSim.subId == -1) null else appliedConfig[Feature.IMS_USER_AGENT]?.data as String?
-            val enableVoLTE = (appliedConfig[Feature.VOLTE]?.data ?: true) as Boolean
-            val enableVoWiFi = (appliedConfig[Feature.VOWIFI]?.data ?: true) as Boolean
-            val enableVoWifiRoaming =
-                (appliedConfig[Feature.VOWIFI_ROAMING]?.data ?: false) as Boolean
-            val enableVT = (appliedConfig[Feature.VT]?.data ?: true) as Boolean
-            val enableVoNR = (appliedConfig[Feature.VONR]?.data ?: true) as Boolean
-            val enableCrossSIM = (appliedConfig[Feature.CROSS_SIM]?.data ?: true) as Boolean
-            val enableUT = (appliedConfig[Feature.UT]?.data ?: true) as Boolean
-            val enable5GNR = (appliedConfig[Feature.FIVE_G_NR]?.data ?: true) as Boolean
-            val enable5GThreshold =
-                (appliedConfig[Feature.FIVE_G_THRESHOLDS]?.data ?: true) as Boolean
-            val enable5GPlusIcon =
-                (appliedConfig[Feature.FIVE_G_PLUS_ICON]?.data ?: true) as Boolean
-            val enableShow4GForLTE =
-                (appliedConfig[Feature.SHOW_4G_FOR_LTE]?.data ?: false) as Boolean
-
-            val bundle = ImsModifier.buildBundle(
-                carrierName,
-                imsUserAgent,
-                enableVoLTE,
-                enableVoWiFi,
-                enableVoWifiRoaming,
-                enableVT,
-                enableVoNR,
-                enableCrossSIM,
-                enableUT,
-                enable5GNR,
-                enable5GThreshold,
-                enable5GPlusIcon,
-                enableShow4GForLTE
-            )
-            bundle.putInt(ImsModifier.BUNDLE_SELECT_SIM_ID, selectedSim.subId)
+            val bundle = ConfigurationRepository.buildBundle(selectedSim.subId, appliedConfig)
 
             // 调用 Shizuku 服务进行实际修改
             val resultMsg = ShizukuProvider.overrideImsConfig(application, bundle)
             if (resultMsg == null) {
                 // 仅在系统配置成功后保存历史，避免失败尝试覆盖上次有效配置。
-                saveConfiguration(selectedSim.subId, appliedConfig)
+                configurations.save(selectedSim.subId, appliedConfig)
+                val appliedIds = if (selectedSim.subId == -1) {
+                    ShizukuProvider.readSimInfoList(application).map { it.subId }
+                } else listOf(selectedSim.subId)
+                configurations.markManualApply(appliedIds)
                 toast(application.getString(R.string.config_success_message))
             } else {
                 toast(application.getString(R.string.config_failed, resultMsg), false)
@@ -246,49 +239,8 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
         }
     }
 
-    /**
-     * 将配置保存到 SharedPreferences 中以便下次加载。
-     */
-    private fun saveConfiguration(subId: Int, map: Map<Feature, FeatureValue>) {
-        application.getSharedPreferences("sim_config_$subId", Context.MODE_PRIVATE).edit {
-            clear() // 清除旧配置
-            map.forEach { (feature, value) ->
-                when (value.valueType) {
-                    FeatureValueType.BOOLEAN -> putBoolean(feature.name, value.data as Boolean)
-                    FeatureValueType.STRING -> putString(feature.name, value.data as String)
-                }
-            }
-        }
-    }
-
-    /**
-     * 加载指定 subId 的配置。如果不存在则返回 null。
-     */
-    fun loadConfiguration(subId: Int): Map<Feature, FeatureValue>? {
-        val prefs = application.getSharedPreferences("sim_config_$subId", Context.MODE_PRIVATE)
-        if (prefs.all.isEmpty()) return null
-
-        val map = linkedMapOf<Feature, FeatureValue>()
-        Feature.entries.forEach { feature ->
-            if (prefs.contains(feature.name)) {
-                when (feature.valueType) {
-                    FeatureValueType.BOOLEAN -> {
-                        val data = prefs.getBoolean(feature.name, feature.defaultValue as Boolean)
-                        map[feature] = FeatureValue(data, feature.valueType)
-                    }
-
-                    FeatureValueType.STRING -> {
-                        val data =
-                            prefs.getString(feature.name, feature.defaultValue as String) ?: ""
-                        map[feature] = FeatureValue(data, feature.valueType)
-                    }
-                }
-            } else {
-                map[feature] = FeatureValue(feature.defaultValue, feature.valueType)
-            }
-        }
-        return map
-    }
+    /** 加载界面历史；重置只取消自动恢复资格，不删除历史内容。 */
+    fun loadConfiguration(subId: Int): Map<Feature, FeatureValue>? = configurations.load(subId)
 
     /**
      * 通过 Shizuku 读取系统当前实时 IMS 能力状态。
@@ -314,6 +266,7 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
             bundle.putInt(ImsModifier.BUNDLE_SELECT_SIM_ID, selectedSim.subId)
             val resultMsg = ShizukuProvider.overrideImsConfig(application, bundle)
             if (resultMsg == null) {
+                configurations.recordReset(selectedSim.subId)
                 toast(application.getString(R.string.config_success_reset_message))
             } else {
                 toast(application.getString(R.string.config_failed, resultMsg), false)
@@ -338,19 +291,26 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
 
     private fun launchExclusiveOperation(block: suspend () -> Unit) {
         if (!operationGate.tryEnter()) return
-        _isOperationInProgress.value = true
         viewModelScope.launch {
             try {
-                block()
+                ConfigurationOperations.run { block() }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (e: Exception) {
+                Log.e("MainViewModel", "Configuration operation failed", e)
+                toast(application.getString(R.string.config_failed, e.localizedMessage), false)
             } finally {
-                _isOperationInProgress.value = false
                 operationGate.leave()
-                if (pendingPersistentRefresh) {
-                    pendingPersistentRefresh = false
-                    refreshPersistentVolte()
-                }
+                drainPendingPersistentRefresh()
             }
         }
+    }
+
+    private fun drainPendingPersistentRefresh() {
+        // 自动恢复释放业务锁也要刷新；手动操作尚未离开本地门闩时留给 finally 处理。
+        if (!pendingPersistentRefresh || isOperationInProgress.value || operationGate.isOccupied) return
+        pendingPersistentRefresh = false
+        refreshPersistentVolte()
     }
 
     private fun toast(msg: String, short: Boolean = true) {

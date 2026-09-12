@@ -84,6 +84,7 @@ import io.github.vvb2060.ims.model.ShizukuStatus
 import io.github.vvb2060.ims.model.SimSelection
 import io.github.vvb2060.ims.model.SystemInfo
 import io.github.vvb2060.ims.viewmodel.MainViewModel
+import io.github.vvb2060.ims.ui.components.AutoRestoreCard
 import io.github.vvb2060.ims.ui.components.PersistentVolteCard
 import kotlinx.coroutines.launch
 
@@ -102,6 +103,7 @@ class MainActivity : BaseActivity() {
         val allSimList by viewModel.allSimList.collectAsStateWithLifecycle()
         val isOperationInProgress by viewModel.isOperationInProgress.collectAsStateWithLifecycle()
         val persistentVolteState by viewModel.persistentVolteState.collectAsStateWithLifecycle()
+        val autoRestoreEnabled by viewModel.autoRestoreEnabled.collectAsStateWithLifecycle()
 
         var selectedSim by remember { mutableStateOf<SimSelection?>(null) }
         var showShizukuUpdateDialog by remember { mutableStateOf(false) }
@@ -238,6 +240,10 @@ class MainActivity : BaseActivity() {
                             )
                         )
                     },
+                )
+                AutoRestoreCard(
+                    enabled = autoRestoreEnabled,
+                    onEnabledChange = viewModel::setAutoRestoreEnabled,
                 )
                 SimCardSelectionCard(
                     selectedSim = selectedSim,

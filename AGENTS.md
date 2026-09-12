@@ -58,6 +58,10 @@ TensorIMS 是一个面向 Google Pixel Tensor 设备的 Android 应用，用于�
 - `io.github.vvb2060.ims.privileged`：通过 Instrumentation 执行的特权逻辑。
 - `ShizukuProvider.kt`：主进程到特权 Instrumentation 的桥接层。
 - `LogcatRepository.kt`：应用日志采集和导出相关逻辑。
+- `ConfigurationRepository.kt`：共用配置历史、应用参数构造、自动恢复操作顺序和开机进度。
+- `AutoRestoreController.kt`：按用户开关监听 Shizuku 连接与授权结果，执行有限重试的自动恢复。
+- `AutoRestoreNotifier.kt`：自动应用一轮结束后汇总结果，先显示文本 Toast，未确认显示时使用通知兜底。
+- `ConfigurationOperations.kt`：串行协调手动与自动业务操作，保证系统写入与本地历史记录顺序一致。
 
 ## 运行架构
 
@@ -106,6 +110,10 @@ TensorIMS 是一个面向 Google Pixel Tensor 设备的 Android 应用，用于�
 
 - SIM 配置按 `subId` 持久化到 `SharedPreferences`，名称形如 `sim_config_<subId>`。
 - `subId = -1` 表示应用到所有 SIM。
+- 自动恢复默认关闭，包括旧版本升级；由用户在主界面主动启用。启用后在 Shizuku 就绪时恢复历史，缺少权限时每次开机最多自动请求一次，用户拒绝后不循环弹窗。应用不负责启动 Shizuku。
+- 自动恢复仅作用于当前活动 SIM；按最后成功操作的序号选择全卡或单卡配置。旧历史无序号时单卡优先。重置成功保留界面历史并写入恢复阻止标记，避免重启后撤销重置。持久化 VoLTE 不参与自动恢复。
+- 自动恢复元数据和开关保存在 `auto_restore` SharedPreferences，历史中的 `_restore_revision` / `_restore_reset` 不属于 Feature。以系统开机计数去重，同一次开机已成功恢复的相同配置不重复应用；用户重新启用开关可重新尝试。
+- 界面明确表述为“Shizuku 就绪后自动应用配置”，仅重启设备不会直接应用，必须先启动 Shizuku 并获得授权。自动应用按一轮重试汇总实际写入结果，重复跳过的历史不提示；优先 Toast，5 秒未收到显示回调时尝试通知。通知需要 `POST_NOTIFICATIONS` 授权及结果渠道开启；启用开关时申请通知权限，拒绝通知不阻止自动应用。后台不主动弹通知权限窗口。
 - 持久化 VoLTE 是独立的即时操作，不属于 `Feature` 配置草稿。原始订阅值（含 -1）保存在 `noBackupFilesDir/persistent_volte_<subId>.json`，以 SIM 标识摘要校验；失败回退失败时保留记录供恢复。重置配置先恢复所选活动 SIM 的原始值，再清除 CarrierConfig；未激活 SIM 的备份保留至重新激活后恢复。
 - `Feature` 和 `FeatureConfigMapper` 是 IMS 功能开关到运营商配置键的主要映射入口。
 - 修改运营商配置时优先走 `ImsModifier`，必要时再由 `ShizukuProvider` 触发 `BrokerInstrumentation` fallback。

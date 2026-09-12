@@ -35,7 +35,7 @@ import rikka.shizuku.ShizukuProvider
 class ShizukuProvider : ShizukuProvider() {
     override fun onCreate(): Boolean {
         LSPass.setHiddenApiExemptions("")
-        // 不再自动触发，只在用户手动点击"应用配置"时才执行
+        // 自动恢复由 Application 中的协调器按用户开关调度，此处仅初始化隐藏 API 访问。
         return super.onCreate()
     }
 
@@ -78,32 +78,39 @@ class ShizukuProvider : ShizukuProvider() {
             }
         }
 
-        suspend fun overrideImsConfig(context: Context, data: Bundle): String? {
+        suspend fun overrideImsConfig(
+            context: Context,
+            data: Bundle,
+            canStart: () -> Boolean = { true },
+        ): String? {
             val primaryArgs = Bundle(data)
-            val result = startInstrumentation(context, ImsModifier::class.java, primaryArgs, true)
+            val result = startInstrumentation(context, ImsModifier::class.java, primaryArgs, true, canStart)
             if (result == null) {
+                if (!canStart()) return "Automatic restore disabled before execution"
                 Log.w(TAG, "overrideImsConfig: failed with empty result")
-                return tryOverrideWithBroker(context, data, "failed with empty result")
+                return tryOverrideWithBroker(context, data, "failed with empty result", canStart)
             }
             if (result.getBoolean(ImsModifier.BUNDLE_RESULT)) {
                 return null
             }
             val msg = result.getString(ImsModifier.BUNDLE_RESULT_MSG) ?: "unknown error"
             // 权限受限或结果为空时，通过 Broker 重试临时配置覆盖。
-            return tryOverrideWithBroker(context, data, msg)
+            return tryOverrideWithBroker(context, data, msg, canStart)
         }
 
         private suspend fun tryOverrideWithBroker(
             context: Context,
             data: Bundle,
             msg: String,
+            canStart: () -> Boolean,
         ): String? {
+            if (!canStart()) return "Automatic restore disabled before fallback"
             if (!shouldRetryWithBroker(msg)) {
                 return msg
             }
             val brokerArgs = Bundle(data)
             val brokerResult =
-                startInstrumentation(context, BrokerInstrumentation::class.java, brokerArgs, true)
+                startInstrumentation(context, BrokerInstrumentation::class.java, brokerArgs, true, canStart)
             if (brokerResult == null) {
                 return "$msg\n\nBroker: failed with empty result"
             }
@@ -190,6 +197,7 @@ class ShizukuProvider : ShizukuProvider() {
             cls: Class<*>,
             args: Bundle?,
             receiveResult: Boolean,
+            canStart: () -> Boolean = { true },
         ): Bundle? = instrumentationMutex.withLock {
             // 新入口使用工作线程，所有 Instrumentation 必须串行，避免 UID 权限委托互相清理。
             // 超时或协程取消不代表设备端操作结束；旧 watcher 返回前不启动下一次操作。
@@ -204,6 +212,8 @@ class ShizukuProvider : ShizukuProvider() {
                     return@withLock null
                 }
             }
+            // 等待锁或上次调用期间用户可能关闭自动恢复；主路径和 Broker 启动前都要重查。
+            if (!canStart()) return@withLock null
             startInstrumentationLocked(context, cls, args, receiveResult)
         }
 

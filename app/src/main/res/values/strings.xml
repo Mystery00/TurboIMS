@@ -17,6 +17,15 @@
     <string name="shizuku_checking">Checking…</string>
     <string name="refresh_permission">Refresh Permission</string>
     <string name="request_permission">Request Permission</string>
+    <string name="auto_restore_title">Apply configs when Shizuku is ready</string>
+    <string name="auto_restore_description">Off by default. Automatically applies saved configs after Shizuku starts, connects to this app, and permission is granted. Requests permission if needed. Rebooting alone does not apply configs: start Shizuku and grant permission first. Does not include persistent VoLTE.</string>
+    <string name="auto_restore_result_success">Configs automatically applied to %1$d SIM(s)</string>
+    <string name="auto_restore_result_failed">Auto apply failed for %1$d SIM(s). Open the app to view logs.</string>
+    <string name="auto_restore_result_partial">Auto apply: %1$d SIM(s) succeeded, %2$d failed</string>
+    <string name="auto_restore_notification_title">Automatic config apply result</string>
+    <string name="auto_restore_notification_channel">Automatic config apply results</string>
+    <string name="auto_restore_notification_unavailable">Notifications are off. If the toast cannot be shown, the automatic apply result cannot be delivered as a notification.</string>
+    <string name="auto_restore_notification_settings">Enable result notifications</string>
     <string name="view_system_config">View IMS</string>
     <string name="restart_ims">Restart IMS</string>
     <string name="restart_ims_success">IMS restarted</string>
