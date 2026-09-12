@@ -135,32 +135,54 @@ class MainActivity : BaseActivity() {
 
         var showSystemConfigDialog by remember { mutableStateOf(false) }
         var systemConfigData by remember { mutableStateOf<ImsCapabilityStatus?>(null) }
+        var systemConfigSim by remember { mutableStateOf<SimSelection?>(null) }
+        var systemConfigRequestId by remember { mutableStateOf(0) }
         var isRefreshingSystemConfig by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
 
+        LaunchedEffect(selectedSim?.subId, shizukuStatus) {
+            // 切卡或权限状态变化后，旧请求的结果不再属于当前弹窗。
+            systemConfigRequestId++
+            showSystemConfigDialog = false
+            systemConfigData = null
+            systemConfigSim = null
+            isRefreshingSystemConfig = false
+        }
+
+        fun loadSystemConfig(sim: SimSelection) {
+            if (isRefreshingSystemConfig || sim.subId < 0 || shizukuStatus != ShizukuStatus.READY) return
+            val requestId = ++systemConfigRequestId
+            isRefreshingSystemConfig = true
+            scope.launch {
+                try {
+                    val data = viewModel.loadRealSystemConfig(sim.subId)
+                    if (requestId != systemConfigRequestId || selectedSim?.subId != sim.subId ||
+                        shizukuStatus != ShizukuStatus.READY) return@launch
+                    if (data != null) {
+                        systemConfigSim = sim
+                        systemConfigData = data
+                        showSystemConfigDialog = true
+                    } else {
+                        Toast.makeText(context, R.string.load_system_config_error, Toast.LENGTH_SHORT).show()
+                    }
+                } finally {
+                    if (requestId == systemConfigRequestId) isRefreshingSystemConfig = false
+                }
+            }
+        }
+
         if (showSystemConfigDialog && systemConfigData != null) {
             SystemConfigDialog(
-                onDismissRequest = { showSystemConfigDialog = false },
+                onDismissRequest = {
+                    systemConfigRequestId++
+                    isRefreshingSystemConfig = false
+                    showSystemConfigDialog = false
+                },
                 status = systemConfigData!!,
-                simName = selectedSim?.showTitle ?: "",
+                simName = systemConfigSim?.showTitle ?: "",
                 isRefreshing = isRefreshingSystemConfig,
                 onRefresh = {
-                    scope.launch {
-                        if (selectedSim != null) {
-                            isRefreshingSystemConfig = true
-                            val data = viewModel.loadRealSystemConfig(selectedSim!!.subId)
-                            if (data != null) {
-                                systemConfigData = data
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    R.string.load_system_config_error,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            isRefreshingSystemConfig = false
-                        }
-                    }
+                    systemConfigSim?.let { loadSystemConfig(it) }
                 }
             )
         }
@@ -228,21 +250,7 @@ class MainActivity : BaseActivity() {
                         Toast.makeText(context, R.string.sim_list_refresh, Toast.LENGTH_SHORT).show()
                     },
                     onViewSystemConfigClick = {
-                        if (selectedSim != null) {
-                            scope.launch {
-                                val data = viewModel.loadRealSystemConfig(selectedSim!!.subId)
-                                if (data != null) {
-                                    systemConfigData = data
-                                    showSystemConfigDialog = true
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        R.string.load_system_config_error,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }
+                        selectedSim?.let { loadSystemConfig(it) }
                     },
                     onResetIms = {
                         selectedSim?.let { viewModel.onResetIms(it) }

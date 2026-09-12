@@ -95,6 +95,8 @@
     <string name="sim_list_refresh">SIM list refreshed</string>
 
     <!-- Logcat -->
+    <string name="export_logcat">Export logs</string>
+    <string name="export_logcat_failed">Could not export logs. Please try again.</string>
     <string name="title_filter_log_level">Select filter log level</string>
     <!-- 持久化 VoLTE 即时操作 -->
     <string name="persistent_volte_title">Persistent VoLTE (Experimental)</string>

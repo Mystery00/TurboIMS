@@ -1,3 +1,4 @@
 <paths>
     <external-cache-path name="logs" path="." />
+    <cache-path name="internal_logs" path="." />
 </paths>

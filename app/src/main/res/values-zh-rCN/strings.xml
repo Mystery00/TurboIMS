@@ -117,4 +117,6 @@
     <string name="persistent_volte_unknown">未知</string>
     <string name="persistent_volte_applied">已启用，请在重启后验证 VoLTE 通话是否正常。</string>
     <string name="persistent_volte_restored">已恢复原来的 VoLTE 设置。</string>
+    <string name="export_logcat">导出日志</string>
+    <string name="export_logcat_failed">日志导出失败，请重试。</string>
 </resources>

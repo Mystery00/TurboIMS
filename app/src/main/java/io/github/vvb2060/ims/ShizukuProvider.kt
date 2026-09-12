@@ -1,6 +1,7 @@
 package io.github.vvb2060.ims
 
 import android.app.IActivityManager
+import android.app.Activity
 import android.app.IInstrumentationWatcher
 import android.app.UiAutomationConnection
 import android.content.ComponentName
@@ -27,6 +28,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.lsposed.hiddenapibypass.LSPass
+import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.ShizukuProvider
 
@@ -87,7 +89,7 @@ class ShizukuProvider : ShizukuProvider() {
                 return null
             }
             val msg = result.getString(ImsModifier.BUNDLE_RESULT_MSG) ?: "unknown error"
-            // Retry via broker when persistent override is restricted or result is empty.
+            // 权限受限或结果为空时，通过 Broker 重试临时配置覆盖。
             return tryOverrideWithBroker(context, data, msg)
         }
 
@@ -131,6 +133,16 @@ class ShizukuProvider : ShizukuProvider() {
                 Log.w(TAG, "readImsCapabilities: ${result.getString(ImsCapabilityReader.BUNDLE_RESULT_MSG)}")
                 return null
             }
+            val requiredKeys = listOf(
+                ImsCapabilityReader.BUNDLE_IMS_REGISTERED, ImsCapabilityReader.BUNDLE_VOLTE,
+                ImsCapabilityReader.BUNDLE_VOWIFI, ImsCapabilityReader.BUNDLE_VONR,
+                ImsCapabilityReader.BUNDLE_VT, ImsCapabilityReader.BUNDLE_NR_NSA,
+                ImsCapabilityReader.BUNDLE_NR_SA,
+            )
+            if (!requiredKeys.all(result::containsKey)) {
+                Log.w(TAG, "readImsCapabilities: incomplete result")
+                return null
+            }
             return ImsCapabilityStatus(
                 isRegistered = result.getBoolean(ImsCapabilityReader.BUNDLE_IMS_REGISTERED),
                 isVolteAvailable = result.getBoolean(ImsCapabilityReader.BUNDLE_VOLTE),
@@ -147,8 +159,11 @@ class ShizukuProvider : ShizukuProvider() {
                 putInt(ImsResetter.BUNDLE_SELECT_SIM_ID, subId)
             }
             val result = startInstrumentation(context, ImsResetter::class.java, args, true)
-            if (result == null) return "Unknown error"
-            return result.getString(ImsResetter.BUNDLE_RESULT_MSG)
+            if (result == null) return "No instrumentation result"
+            if (!result.getBoolean(ImsResetter.BUNDLE_RESULT)) {
+                return result.getString(ImsResetter.BUNDLE_RESULT_MSG) ?: "Incomplete IMS reset result"
+            }
+            return null
         }
 
         suspend fun readSimInfoList(context: Context): List<SimSelection> {
@@ -214,17 +229,30 @@ class ShizukuProvider : ShizukuProvider() {
                         resultCode: Int,
                         results: Bundle?
                     ) {
-                        deferredResult.complete(results)
+                        // 系统取消或启动异常不属于业务成功，不能把空 Bundle 当作全部能力关闭。
+                        if (resultCode != Activity.RESULT_OK) {
+                            Log.w(TAG, "Instrumentation finished with resultCode=$resultCode: $name")
+                            deferredResult.complete(null)
+                        } else {
+                            deferredResult.complete(results)
+                        }
                     }
                 }
             }
 
-            val binder = ServiceManager.getService(Context.ACTIVITY_SERVICE)
-            val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(binder))
-            val name = ComponentName(context, cls)
-            val flags = 8 // ActivityManager.INSTR_FLAG_NO_RESTART
-            val connection = UiAutomationConnection()
             try {
+                // 读卡等入口也会在 Shizuku 未启动时被调用；初始化和隐藏 API 链接均纳入错误边界。
+                check(Shizuku.pingBinder()) { "Shizuku binder is unavailable" }
+                check(!Shizuku.isPreV11()) { "Shizuku update required" }
+                check(Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+                    "Shizuku permission is not granted"
+                }
+                val binder = ServiceManager.getService(Context.ACTIVITY_SERVICE)
+                    ?: error("Activity service unavailable")
+                val am = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(binder))
+                val name = ComponentName(context, cls)
+                val flags = 8 // 使用 INSTR_FLAG_NO_RESTART，保留主应用进程。
+                val connection = UiAutomationConnection()
                 Log.d(TAG, "startInstrumentation: call with component: $name")
                 val started = am.startInstrumentation(
                     name,
@@ -254,7 +282,7 @@ class ShizukuProvider : ShizukuProvider() {
                 return null
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 Log.e(TAG, "failed to start instrumentation", e)
                 return null
             }

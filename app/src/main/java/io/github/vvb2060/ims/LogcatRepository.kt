@@ -16,6 +16,9 @@ object LogcatRepository {
     private val _logs = mutableStateListOf<LogEntry>()
     val logs: List<LogEntry> = _logs
 
+    /** 返回 Compose 列表的不可变快照，供后台导出使用，避免与采集/清空并发迭代。 */
+    fun snapshot(): List<LogEntry> = _logs.toList()
+
     private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private var logProcess: Process? = null

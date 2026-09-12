@@ -20,8 +20,8 @@ class SimReader : Instrumentation() {
     }
 
     @SuppressLint("MissingPermission")
-    override fun start() {
-        super.start()
+    override fun onStart() {
+        // start() 只负责启动 Instrumentation 工作线程，读卡在 onStart 中执行。
         val result = Bundle()
         val failure = runWithShellPermissionDelegation(TAG) {
             Log.d(TAG, "start read sim info list")
