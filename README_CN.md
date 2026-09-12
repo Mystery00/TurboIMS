@@ -5,7 +5,7 @@
 >
 > 主要适配和维护范围为中国移动、中国联通、中国电信网络下的使用场景。其他运营商因缺少相应设备、SIM 卡及网络测试条件，不作为主要适配和维护对象；这不表示其他网络一定无法使用，实际兼容性需自行验证。
 
-[下载最新版](https://github.com/Mystery00/TensorIMS/releases/latest) · [项目主页](https://pixel.mystery0.app) · [使用说明](#使用) · [问题反馈](https://github.com/Mystery00/TensorIMS/issues)
+[下载最新版](https://github.com/Pixel-Tailor-CN/TensorIMS/releases/latest) · [项目主页](https://pixel.mystery0.app) · [使用说明](#使用) · [问题反馈](https://github.com/Pixel-Tailor-CN/TensorIMS/issues)
 
 <p align="center">
   <img src="app/src/main/ic_launcher-playstore.png" width="200" alt="TensorIMS Logo"/>
@@ -16,9 +16,9 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/Mystery00/TensorIMS/releases"><img src="https://img.shields.io/github/v/release/Mystery00/TensorIMS" alt="GitHub release"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/github/license/Mystery00/TensorIMS" alt="License"></a>
-    <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Mystery00/TensorIMS"><img src="https://img.shields.io/badge/Obtainium-Import-blue?logo=obtainium&logoColor=white" alt="Obtainium"></a>
+    <a href="https://github.com/Pixel-Tailor-CN/TensorIMS/releases"><img src="https://img.shields.io/github/v/release/Pixel-Tailor-CN/TensorIMS" alt="GitHub release"></a>
+    <a href="LICENSE"><img src="https://img.shields.io/github/license/Pixel-Tailor-CN/TensorIMS" alt="License"></a>
+    <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Pixel-Tailor-CN/TensorIMS"><img src="https://img.shields.io/badge/Obtainium-Import-blue?logo=obtainium&logoColor=white" alt="Obtainium"></a>
 </p>
 
 [English](README.md)
@@ -70,9 +70,9 @@ TensorIMS 是一个允许您在 Google Pixel 手机上启用或禁用 VoLTE（�
 
 ## 安装
 
-<a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Mystery00/TensorIMS"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png" alt="Obtainium" height="96"></a>
+<a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/Pixel-Tailor-CN/TensorIMS"><img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png" alt="Obtainium" height="96"></a>
 
-1.  从 [Releases](https://github.com/Mystery00/TensorIMS/releases) 页面下载最新的 APK。
+1.  从 [Releases](https://github.com/Pixel-Tailor-CN/TensorIMS/releases) 页面下载最新的 APK。
 2.  在您的设备上安装 APK。
 3.  打开应用并授予 Shizuku 权限。
 

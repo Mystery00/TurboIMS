@@ -376,7 +376,7 @@ fun SystemInfoCard(
                 )
                 Spacer(modifier = Modifier.weight(1F))
                 IconButton(onClick = {
-                    uriHandler.openUri("https://github.com/Mystery00/TensorIMS")
+                    uriHandler.openUri("https://github.com/Pixel-Tailor-CN/TensorIMS")
                 }) {
                     Icon(painterResource(R.drawable.ic_github), null)
                 }
